@@ -306,12 +306,15 @@ onUnmounted(() => {
 .modern-main {
   background: transparent;
   padding: 2rem 3rem;
-  min-height: calc(100vh - 240px);
+  height: calc(100vh - 240px);
+  overflow: hidden;
 }
 
 .content-wrapper {
   max-width: 1400px;
   margin: 0 auto;
+  height: 100%;
+  overflow: hidden;
 }
 
 @media (max-width: 768px) {

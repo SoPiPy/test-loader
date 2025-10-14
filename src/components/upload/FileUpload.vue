@@ -238,11 +238,15 @@ function formatSize(bytes: number): string {
 .upload-container {
   display: flex;
   flex-direction: column;
-  gap: 2rem;
+  gap: 1.5rem;
+  height: calc(100vh - 280px);
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
 }
 
 .upload-section {
-  padding: 2.5rem;
+  padding: 2rem;
+  flex-shrink: 0;
 }
 
 .section-header {
@@ -361,6 +365,8 @@ function formatSize(bytes: number): string {
 
 .files-list-section {
   padding: 2rem;
+  flex-shrink: 0;
+  overflow: hidden;
 }
 
 .list-header {
@@ -381,6 +387,26 @@ function formatSize(bytes: number): string {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.files-grid::-webkit-scrollbar {
+  width: 8px;
+}
+
+.files-grid::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.files-grid::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 10px;
+}
+
+.files-grid::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
 }
 
 .file-card {

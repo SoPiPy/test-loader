@@ -169,12 +169,36 @@ async function generatePresentation() {
 
 <style scoped>
 .presentation-container {
-  padding: 2.5rem;
+  padding: 2rem;
+  height: calc(100vh - 280px);
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.presentation-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.presentation-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.presentation-container::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 10px;
+}
+
+.presentation-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
 }
 
 .header-icon-wrapper {
@@ -239,6 +263,7 @@ async function generatePresentation() {
 .generated-section {
   padding: 2rem;
   margin-top: 2rem;
+  flex-shrink: 0;
 }
 
 .list-header {

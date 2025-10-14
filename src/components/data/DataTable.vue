@@ -1,10 +1,6 @@
 <template>
   <div class="data-editor-layout">
-    <v-navigation-drawer
-      permanent
-      width="280"
-      class="files-sidebar"
-    >
+    <div class="files-sidebar">
       <v-list density="compact" class="pa-0">
         <v-list-subheader class="text-uppercase font-weight-bold">
           <v-icon size="small" class="mr-2">mdi-file-multiple</v-icon>
@@ -49,7 +45,7 @@
           </template>
         </v-list-item>
       </v-list>
-    </v-navigation-drawer>
+    </div>
 
     <div class="main-content">
       <v-card class="h-100">
@@ -248,7 +244,8 @@ async function saveChanges() {
   display: flex;
   gap: 1.5rem;
   height: calc(100vh - 280px);
-  min-height: 600px;
+  max-height: calc(100vh - 280px);
+  overflow: hidden;
 }
 
 .files-sidebar {

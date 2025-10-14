@@ -198,16 +198,18 @@ function formatTime(date: Date): string {
 
 <style scoped>
 .qa-container {
-  padding: 2.5rem;
+  padding: 2rem;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 300px);
-  min-height: 600px;
+  height: calc(100vh - 280px);
+  max-height: calc(100vh - 280px);
+  overflow: hidden;
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .header-icon-wrapper {
@@ -237,8 +239,9 @@ function formatTime(date: Date): string {
   flex: 1;
   display: flex;
   flex-direction: column;
-  gap: 1rem;
+  gap: 0.75rem;
   overflow: hidden;
+  min-height: 0;
 }
 
 .info-banner {
@@ -247,7 +250,9 @@ function formatTime(date: Date): string {
 }
 
 .file-selector {
-  margin-bottom: 1rem;
+  flex-shrink: 0;
+  overflow: visible;
+  z-index: 10;
 }
 
 .form-label {
@@ -260,6 +265,12 @@ function formatTime(date: Date): string {
 
 .modern-select {
   border-radius: 12px;
+  overflow: visible;
+}
+
+.modern-select :deep(.v-field),
+.modern-select :deep(.v-overlay-container) {
+  overflow: visible;
 }
 
 .chat-container {
@@ -411,7 +422,8 @@ function formatTime(date: Date): string {
 }
 
 .input-section {
-  margin-top: 1rem;
+  flex-shrink: 0;
+  padding-top: 0.75rem;
 }
 
 .input-wrapper {
@@ -435,6 +447,7 @@ function formatTime(date: Date): string {
   .qa-container {
     padding: 1.5rem;
     height: calc(100vh - 250px);
+    max-height: calc(100vh - 250px);
   }
 
   .section-title {

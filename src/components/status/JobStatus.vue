@@ -218,12 +218,36 @@ function toggleJobDetails(fileId: string) {
 
 <style scoped>
 .status-container {
-  padding: 2.5rem;
+  padding: 2rem;
+  height: calc(100vh - 280px);
+  max-height: calc(100vh - 280px);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.status-container::-webkit-scrollbar {
+  width: 8px;
+}
+
+.status-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.status-container::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 10px;
+}
+
+.status-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
 }
 
 .section-header {
   text-align: center;
-  margin-bottom: 2.5rem;
+  margin-bottom: 1.5rem;
+  flex-shrink: 0;
 }
 
 .header-icon-wrapper {
@@ -252,6 +276,10 @@ function toggleJobDetails(fileId: string) {
 .status-content {
   max-width: 1000px;
   margin: 0 auto;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 .stats-bar {
@@ -325,6 +353,26 @@ function toggleJobDetails(fileId: string) {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.jobs-list::-webkit-scrollbar {
+  width: 8px;
+}
+
+.jobs-list::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.jobs-list::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 10px;
+}
+
+.jobs-list::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
 }
 
 .job-card {
