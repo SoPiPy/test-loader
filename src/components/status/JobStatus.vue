@@ -309,9 +309,8 @@ function toggleJobDetails(fileId: string) {
 }
 
 .stat-card:hover {
-  border-color: #cbd5e1;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
+  outline: 2px solid #667eea;
+  outline-offset: -2px;
 }
 
 .stat-info {
@@ -407,8 +406,8 @@ function toggleJobDetails(fileId: string) {
 }
 
 .job-card:hover {
-  border-color: #cbd5e1;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  outline: 2px solid #667eea;
+  outline-offset: -2px;
 }
 
 .job-header {

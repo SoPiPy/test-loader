@@ -295,7 +295,6 @@ async function saveChanges() {
 
 .file-list-item:hover {
   background-color: rgba(102, 126, 234, 0.05);
-  transform: translateX(4px);
 }
 
 .file-list-item.v-list-item--active {

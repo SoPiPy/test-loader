@@ -435,9 +435,8 @@ function formatSize(bytes: number): string {
 }
 
 .file-card:hover {
-  border-color: #cbd5e1;
-  transform: translateY(-2px);
-  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+  outline: 2px solid #667eea;
+  outline-offset: -2px;
 }
 
 .file-card-header {
