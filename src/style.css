@@ -17,8 +17,16 @@ body {
   margin: 0;
   min-width: 320px;
   height: 100vh;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   overflow: hidden;
+  transition: background 0.3s ease;
+}
+
+body.v-theme--light {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+body.v-theme--dark {
+  background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
 }
 
 #app {
@@ -28,34 +36,68 @@ body {
 }
 
 .glass-card {
-  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.glass-card:hover {
+.v-theme--light .glass-card {
+  background: rgba(255, 255, 255, 0.95);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.v-theme--dark .glass-card {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+.v-theme--light .glass-card:hover {
   box-shadow: 0 12px 48px 0 rgba(31, 38, 135, 0.25);
   transform: translateY(-2px);
 }
 
+.v-theme--dark .glass-card:hover {
+  box-shadow: 0 12px 48px 0 rgba(0, 0, 0, 0.5);
+  transform: translateY(-2px);
+}
+
 .glass-input {
-  background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(10px);
   border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.4);
   transition: all 0.3s ease;
 }
 
-.glass-input:hover {
+.v-theme--light .glass-input {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.v-theme--dark .glass-input {
+  background: rgba(30, 41, 59, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.v-theme--light .glass-input:hover {
   background: rgba(255, 255, 255, 0.9);
   border-color: rgba(102, 126, 234, 0.5);
 }
 
+.v-theme--dark .glass-input:hover {
+  background: rgba(30, 41, 59, 0.8);
+  border-color: rgba(147, 197, 253, 0.5);
+}
+
 .gradient-text {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.v-theme--dark .gradient-text {
+  background: linear-gradient(135deg, #93c5fd 0%, #a78bfa 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
@@ -136,4 +178,78 @@ body {
 @keyframes shimmer {
   0% { background-position: -200% 0; }
   100% { background-position: 200% 0; }
+}
+
+.v-theme--light .text-dark {
+  color: #334155;
+}
+
+.v-theme--dark .text-dark {
+  color: #e2e8f0;
+}
+
+.v-theme--light .text-muted {
+  color: #64748b;
+}
+
+.v-theme--dark .text-muted {
+  color: #94a3b8;
+}
+
+.v-theme--light .bg-light {
+  background: rgba(248, 250, 252, 0.5);
+}
+
+.v-theme--dark .bg-light {
+  background: rgba(15, 23, 42, 0.5);
+}
+
+.v-theme--light .border-light {
+  border-color: #e2e8f0;
+}
+
+.v-theme--dark .border-light {
+  border-color: #334155;
+}
+
+.v-theme--light .bg-white {
+  background: white;
+}
+
+.v-theme--dark .bg-white {
+  background: #1e293b;
+}
+
+.v-theme--light .card-bg {
+  background: white;
+  border: 2px solid #e2e8f0;
+}
+
+.v-theme--dark .card-bg {
+  background: #1e293b;
+  border: 2px solid #334155;
+}
+
+.v-theme--light .scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+}
+
+.v-theme--dark .scrollbar-track {
+  background: rgba(255, 255, 255, 0.05);
+}
+
+.v-theme--light .scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+}
+
+.v-theme--dark .scrollbar-thumb {
+  background: rgba(147, 197, 253, 0.5);
+}
+
+.v-theme--light .scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
+}
+
+.v-theme--dark .scrollbar-thumb:hover {
+  background: rgba(147, 197, 253, 0.8);
 }

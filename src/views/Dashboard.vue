@@ -21,6 +21,14 @@
           <v-btn
             icon
             variant="text"
+            class="theme-btn"
+            @click="toggleTheme"
+          >
+            <v-icon color="white">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
+          </v-btn>
+          <v-btn
+            icon
+            variant="text"
             class="logout-btn"
             @click="handleLogout"
           >
@@ -66,6 +74,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { useRouter } from 'vue-router';
+import { useTheme } from 'vuetify';
 import { useAuthStore } from '@/stores/auth';
 import { useFilesStore } from '@/stores/files';
 import { useJobsStore } from '@/stores/jobs';
@@ -76,11 +85,17 @@ import PresentationGenerator from '@/components/presentation/PresentationGenerat
 import QuestionAnswer from '@/components/qa/QuestionAnswer.vue';
 
 const router = useRouter();
+const theme = useTheme();
 const authStore = useAuthStore();
 const filesStore = useFilesStore();
 const jobsStore = useJobsStore();
 
 const tab = ref('upload');
+const isDark = computed(() => theme.global.current.value.dark);
+
+function toggleTheme() {
+  theme.global.name.value = theme.global.current.value.dark ? 'light' : 'dark';
+}
 
 const tabs = [
   { value: 'upload', label: 'Upload', icon: 'mdi-upload' },
@@ -217,9 +232,17 @@ onUnmounted(() => {
 .user-email {
   font-size: 0.875rem;
   font-weight: 500;
+}
+
+.v-theme--light .user-email {
   color: #667eea;
 }
 
+.v-theme--dark .user-email {
+  color: #93c5fd;
+}
+
+.theme-btn,
 .logout-btn {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(10px);
@@ -227,6 +250,7 @@ onUnmounted(() => {
   transition: all 0.3s ease;
 }
 
+.theme-btn:hover,
 .logout-btn:hover {
   background: rgba(255, 255, 255, 0.3);
   transform: scale(1.05);
@@ -260,15 +284,27 @@ onUnmounted(() => {
   border-radius: 12px;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
-  color: #64748b;
   font-weight: 500;
   font-size: 0.9rem;
   user-select: none;
 }
 
-.tab-item:hover {
+.v-theme--light .tab-item {
+  color: #64748b;
+}
+
+.v-theme--dark .tab-item {
+  color: #94a3b8;
+}
+
+.v-theme--light .tab-item:hover {
   background: rgba(102, 126, 234, 0.08);
   color: #667eea;
+}
+
+.v-theme--dark .tab-item:hover {
+  background: rgba(147, 197, 253, 0.08);
+  color: #93c5fd;
 }
 
 .tab-item.active {
@@ -296,11 +332,19 @@ onUnmounted(() => {
   top: 0.5rem;
   bottom: 0.5rem;
   left: 0.5rem;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   border-radius: 12px;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 1;
+}
+
+.v-theme--light .tab-indicator {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.v-theme--dark .tab-indicator {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
 
 .modern-main {
