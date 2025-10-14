@@ -14,10 +14,6 @@
         </div>
 
         <div class="header-right">
-          <div class="user-chip glass-card">
-            <v-icon size="20" class="mr-2" color="primary">mdi-account-circle</v-icon>
-            <span class="user-email">{{ authStore.user?.email }}</span>
-          </div>
           <v-btn
             icon
             variant="text"
@@ -25,14 +21,6 @@
             @click="toggleTheme"
           >
             <v-icon color="white">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
-          </v-btn>
-          <v-btn
-            icon
-            variant="text"
-            class="logout-btn"
-            @click="handleLogout"
-          >
-            <v-icon color="white">mdi-logout</v-icon>
           </v-btn>
         </div>
       </div>
@@ -73,9 +61,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue';
-import { useRouter } from 'vue-router';
 import { useTheme } from 'vuetify';
-import { useAuthStore } from '@/stores/auth';
 import { useFilesStore } from '@/stores/files';
 import { useJobsStore } from '@/stores/jobs';
 import FileUpload from '@/components/upload/FileUpload.vue';
@@ -84,9 +70,7 @@ import DataTable from '@/components/data/DataTable.vue';
 import PresentationGenerator from '@/components/presentation/PresentationGenerator.vue';
 import QuestionAnswer from '@/components/qa/QuestionAnswer.vue';
 
-const router = useRouter();
 const theme = useTheme();
-const authStore = useAuthStore();
 const filesStore = useFilesStore();
 const jobsStore = useJobsStore();
 
@@ -135,12 +119,6 @@ const activeJobsCount = computed(() => {
     (f) => f.status === 'processing' || f.status === 'uploaded'
   ).length;
 });
-
-function handleLogout() {
-  jobsStore.stopAllPolling();
-  authStore.logout();
-  router.push('/login');
-}
 
 onUnmounted(() => {
   jobsStore.stopAllPolling();
