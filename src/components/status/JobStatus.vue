@@ -294,10 +294,18 @@ function toggleJobDetails(fileId: string) {
   align-items: center;
   gap: 1rem;
   padding: 1.5rem;
-  background: white;
   border: 2px solid #e2e8f0;
   border-radius: 16px;
   transition: all 0.3s ease;
+}
+
+.v-theme--light .stat-card {
+  background: white;
+}
+
+.v-theme--dark .stat-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .stat-card:hover {
@@ -313,9 +321,16 @@ function toggleJobDetails(fileId: string) {
 .stat-value {
   font-size: 1.75rem;
   font-weight: 700;
-  color: #334155;
   margin: 0 0 0.25rem 0;
   line-height: 1;
+}
+
+.v-theme--light .stat-value {
+  color: #334155;
+}
+
+.v-theme--dark .stat-value {
+  color: #e2e8f0;
 }
 
 .stat-label {
@@ -376,11 +391,19 @@ function toggleJobDetails(fileId: string) {
 }
 
 .job-card {
-  background: white;
   border: 2px solid #e2e8f0;
   border-radius: 16px;
   padding: 1.5rem;
   transition: all 0.3s ease;
+}
+
+.v-theme--light .job-card {
+  background: white;
+}
+
+.v-theme--dark .job-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .job-card:hover {

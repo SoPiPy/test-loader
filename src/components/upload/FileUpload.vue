@@ -379,8 +379,15 @@ function formatSize(bytes: number): string {
 .list-title {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #334155;
   margin: 0;
+}
+
+.v-theme--light .list-title {
+  color: #334155;
+}
+
+.v-theme--dark .list-title {
+  color: #e2e8f0;
 }
 
 .files-grid {
@@ -411,12 +418,20 @@ function formatSize(bytes: number): string {
 
 .file-card {
   position: relative;
-  background: white;
   border-radius: 16px;
   padding: 1.25rem;
   border: 2px solid #e2e8f0;
   transition: all 0.3s ease;
   overflow: hidden;
+}
+
+.v-theme--light .file-card {
+  background: white;
+}
+
+.v-theme--dark .file-card {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .file-card:hover {

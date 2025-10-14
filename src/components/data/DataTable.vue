@@ -252,12 +252,21 @@ async function saveChanges() {
   width: 280px;
   height: 100%;
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
+  padding: 1rem;
+}
+
+.v-theme--light .files-sidebar {
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-  padding: 1rem;
+}
+
+.v-theme--dark .files-sidebar {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 .files-sidebar::-webkit-scrollbar {
@@ -306,7 +315,14 @@ async function saveChanges() {
   position: sticky;
   top: 0;
   z-index: 10;
+}
+
+.v-theme--light .sticky-header {
   background: rgba(255, 255, 255, 0.98);
+}
+
+.v-theme--dark .sticky-header {
+  background: rgba(15, 23, 42, 0.98);
   backdrop-filter: blur(10px);
   border-bottom: 2px solid #e2e8f0;
   padding: 1.5rem;
