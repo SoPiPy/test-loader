@@ -225,8 +225,16 @@ onUnmounted(() => {
   display: flex;
   align-items: center;
   padding: 0.5rem 1rem;
-  background: rgba(255, 255, 255, 0.95);
   border-radius: 50px;
+}
+
+.v-theme--light .user-chip {
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.v-theme--dark .user-chip {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .user-email {
@@ -268,10 +276,19 @@ onUnmounted(() => {
   display: flex;
   position: relative;
   padding: 0.5rem;
-  background: rgba(255, 255, 255, 0.95);
   border-radius: 16px;
   gap: 0.5rem;
+}
+
+.v-theme--light .floating-tabs {
+  background: rgba(255, 255, 255, 0.95);
   box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+}
+
+.v-theme--dark .floating-tabs {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .tab-item {
