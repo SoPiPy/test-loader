@@ -300,7 +300,8 @@ async function saveChanges() {
 .file-list-item.v-list-item--active {
   border-left-color: #667eea;
   background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
-  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
+  outline: 2px solid #667eea;
+  outline-offset: -2px;
 }
 
 .main-content {
@@ -322,10 +323,6 @@ async function saveChanges() {
 
 .v-theme--dark .sticky-header {
   background: rgba(15, 23, 42, 0.98);
-  backdrop-filter: blur(10px);
-  border-bottom: 2px solid #e2e8f0;
-  padding: 1.5rem;
-  border-radius: 20px 20px 0 0;
 }
 
 .table-container {
@@ -355,11 +352,20 @@ async function saveChanges() {
 
 .h-100 {
   height: 100%;
-  background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(20px);
   border-radius: 20px;
+}
+
+.v-theme--light .h-100 {
+  background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.v-theme--dark .h-100 {
+  background: rgba(30, 41, 59, 0.8);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
 @media (max-width: 968px) {
