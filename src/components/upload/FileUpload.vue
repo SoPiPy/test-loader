@@ -1,69 +1,133 @@
 <template>
-  <v-card>
-    <v-card-title class="d-flex align-center">
-      <v-icon class="mr-2">mdi-upload</v-icon>
-      Upload Files
-    </v-card-title>
+  <div class="upload-container">
+    <div class="upload-section glass-card">
+      <div class="section-header">
+        <div class="header-icon-wrapper floating-element">
+          <v-icon size="32" color="primary">mdi-cloud-upload</v-icon>
+        </div>
+        <h2 class="section-title gradient-text">Upload Your Files</h2>
+        <p class="section-subtitle">Drag and drop files here or click to browse</p>
+      </div>
 
-    <v-card-text>
-      <v-file-input
-        v-model="selectedFiles"
-        label="Select files"
-        multiple
-        chips
-        :disabled="uploading"
-        prepend-icon="mdi-paperclip"
-        @update:model-value="handleFileSelection"
-      ></v-file-input>
+      <div
+        class="drop-zone"
+        :class="{ 'drag-over': isDragging, 'has-files': selectedFiles.length > 0 }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+        @click="triggerFileInput"
+      >
+        <input
+          ref="fileInput"
+          type="file"
+          multiple
+          @change="handleFileInput"
+          style="display: none"
+        />
+
+        <div v-if="selectedFiles.length === 0" class="drop-zone-content">
+          <div class="upload-icon-container" :class="{ 'pulse-animation': isDragging }">
+            <v-icon size="80" :color="isDragging ? 'primary' : 'grey-lighten-1'">
+              mdi-file-upload-outline
+            </v-icon>
+          </div>
+          <p class="drop-zone-title">Drop files here</p>
+          <p class="drop-zone-subtitle">or click to browse</p>
+          <div class="file-types-hint">
+            <v-chip size="small" variant="text">CSV</v-chip>
+            <v-chip size="small" variant="text">XLSX</v-chip>
+            <v-chip size="small" variant="text">JSON</v-chip>
+          </div>
+        </div>
+
+        <div v-else class="selected-files-preview">
+          <div class="files-count">
+            <v-icon size="48" color="primary">mdi-file-check</v-icon>
+            <p class="count-text">{{ selectedFiles.length }} file(s) selected</p>
+          </div>
+          <div class="files-list">
+            <v-chip
+              v-for="(file, index) in selectedFiles"
+              :key="index"
+              closable
+              @click:close="removeFile(index)"
+              class="file-chip"
+            >
+              <v-icon size="16" class="mr-2">mdi-file</v-icon>
+              {{ file.name }}
+            </v-chip>
+          </div>
+        </div>
+      </div>
 
       <v-btn
+        v-if="selectedFiles.length > 0"
+        size="large"
         color="primary"
-        :disabled="selectedFiles.length === 0 || uploading"
+        :disabled="uploading"
         :loading="uploading"
         @click="uploadFiles"
         block
-        class="mt-3"
+        class="upload-btn"
       >
-        <v-icon left>mdi-cloud-upload</v-icon>
+        <v-icon class="mr-2">mdi-cloud-upload</v-icon>
         Upload {{ selectedFiles.length }} file(s)
       </v-btn>
+    </div>
 
-      <v-divider class="my-4"></v-divider>
-
-      <div v-if="filesStore.getAllFiles().length > 0">
-        <h3 class="mb-3">Uploaded Files</h3>
-        <v-list>
-          <v-list-item
-            v-for="file in filesStore.getAllFiles()"
-            :key="file.id"
-            :class="{ 'bg-green-lighten-5': file.status === 'completed' }"
-          >
-            <template v-slot:prepend>
-              <v-icon :color="getStatusColor(file.status)">
-                {{ getStatusIcon(file.status) }}
-              </v-icon>
-            </template>
-
-            <v-list-item-title>{{ file.name }}</v-list-item-title>
-            <v-list-item-subtitle>
-              {{ formatSize(file.size) }} • {{ file.status }}
-            </v-list-item-subtitle>
-
-            <template v-slot:append v-if="file.status === 'uploading'">
-              <v-progress-circular
-                :model-value="file.uploadProgress"
-                :size="24"
-                :width="3"
-                color="primary"
-              >
-                <small>{{ file.uploadProgress }}</small>
-              </v-progress-circular>
-            </template>
-          </v-list-item>
-        </v-list>
+    <div v-if="filesStore.getAllFiles().length > 0" class="files-list-section glass-card">
+      <div class="list-header">
+        <h3 class="list-title">Uploaded Files</h3>
+        <v-chip size="small" color="primary" variant="tonal">
+          {{ filesStore.getAllFiles().length }} total
+        </v-chip>
       </div>
-    </v-card-text>
-  </v-card>
+
+      <div class="files-grid">
+        <div
+          v-for="file in filesStore.getAllFiles()"
+          :key="file.id"
+          class="file-card"
+          :class="`status-${file.status}`"
+        >
+          <div class="file-card-header">
+            <div class="file-icon-wrapper" :style="{ background: getStatusGradient(file.status) }">
+              <v-icon color="white" size="24">{{ getStatusIcon(file.status) }}</v-icon>
+            </div>
+            <div class="file-info">
+              <p class="file-name">{{ file.name }}</p>
+              <p class="file-meta">{{ formatSize(file.size) }}</p>
+            </div>
+          </div>
+
+          <div class="file-card-footer">
+            <v-chip
+              size="small"
+              :color="getStatusColor(file.status)"
+              variant="tonal"
+            >
+              {{ file.status }}
+            </v-chip>
+            <v-progress-circular
+              v-if="file.status === 'uploading'"
+              :model-value="file.uploadProgress"
+              :size="28"
+              :width="3"
+              color="primary"
+            >
+              <span class="progress-text">{{ file.uploadProgress }}</span>
+            </v-progress-circular>
+          </div>
+
+          <div
+            v-if="file.status === 'uploading'"
+            class="progress-bar"
+            :style="{ width: `${file.uploadProgress}%` }"
+          ></div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
@@ -76,15 +140,31 @@ const jobsStore = useJobsStore();
 
 const selectedFiles = ref<File[]>([]);
 const uploading = ref(false);
+const isDragging = ref(false);
+const fileInput = ref<HTMLInputElement | null>(null);
 
-function handleFileSelection(files: File | File[] | null) {
-  if (!files) {
-    selectedFiles.value = [];
-  } else if (Array.isArray(files)) {
-    selectedFiles.value = files;
-  } else {
-    selectedFiles.value = [files];
+function handleDrop(e: DragEvent) {
+  isDragging.value = false;
+  const files = Array.from(e.dataTransfer?.files || []);
+  if (files.length > 0) {
+    selectedFiles.value = [...selectedFiles.value, ...files];
   }
+}
+
+function triggerFileInput() {
+  fileInput.value?.click();
+}
+
+function handleFileInput(e: Event) {
+  const target = e.target as HTMLInputElement;
+  const files = Array.from(target.files || []);
+  if (files.length > 0) {
+    selectedFiles.value = [...selectedFiles.value, ...files];
+  }
+}
+
+function removeFile(index: number) {
+  selectedFiles.value.splice(index, 1);
 }
 
 async function uploadFiles() {
@@ -123,11 +203,22 @@ function getStatusColor(status: string): string {
   return colors[status] || 'grey';
 }
 
+function getStatusGradient(status: string): string {
+  const gradients: Record<string, string> = {
+    uploading: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+    uploaded: 'linear-gradient(135deg, #06b6d4 0%, #3b82f6 100%)',
+    processing: 'linear-gradient(135deg, #f59e0b 0%, #f97316 100%)',
+    completed: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
+    error: 'linear-gradient(135deg, #ef4444 0%, #dc2626 100%)',
+  };
+  return gradients[status] || 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+}
+
 function getStatusIcon(status: string): string {
   const icons: Record<string, string> = {
     uploading: 'mdi-upload',
     uploaded: 'mdi-check-circle',
-    processing: 'mdi-cog',
+    processing: 'mdi-cog-outline',
     completed: 'mdi-check-circle',
     error: 'mdi-alert-circle',
   };
@@ -142,3 +233,247 @@ function formatSize(bytes: number): string {
   return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
 }
 </script>
+
+<style scoped>
+.upload-container {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.upload-section {
+  padding: 2.5rem;
+}
+
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.header-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.section-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.drop-zone {
+  border: 3px dashed #e2e8f0;
+  border-radius: 20px;
+  padding: 3rem 2rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  background: rgba(248, 250, 252, 0.5);
+  min-height: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drop-zone:hover {
+  border-color: #cbd5e1;
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.drop-zone.drag-over {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
+  transform: scale(1.02);
+}
+
+.drop-zone-content {
+  width: 100%;
+}
+
+.upload-icon-container {
+  margin-bottom: 1.5rem;
+}
+
+.drop-zone-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 0.5rem 0;
+}
+
+.drop-zone-subtitle {
+  color: #64748b;
+  margin: 0 0 1.5rem 0;
+}
+
+.file-types-hint {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.selected-files-preview {
+  width: 100%;
+}
+
+.files-count {
+  margin-bottom: 1.5rem;
+}
+
+.count-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #667eea;
+  margin: 0.5rem 0 0 0;
+}
+
+.files-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  justify-content: center;
+}
+
+.file-chip {
+  font-size: 0.875rem;
+}
+
+.upload-btn {
+  margin-top: 1.5rem;
+  padding: 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 12px;
+}
+
+.files-list-section {
+  padding: 2rem;
+}
+
+.list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.list-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #334155;
+  margin: 0;
+}
+
+.files-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+}
+
+.file-card {
+  position: relative;
+  background: white;
+  border-radius: 16px;
+  padding: 1.25rem;
+  border: 2px solid #e2e8f0;
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.file-card:hover {
+  border-color: #cbd5e1;
+  transform: translateY(-2px);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+}
+
+.file-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.file-icon-wrapper {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.file-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.file-name {
+  font-weight: 600;
+  color: #334155;
+  margin: 0 0 0.25rem 0;
+  font-size: 0.9375rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.file-meta {
+  color: #64748b;
+  font-size: 0.8125rem;
+  margin: 0;
+}
+
+.file-card-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.progress-text {
+  font-size: 0.625rem;
+  font-weight: 600;
+}
+
+.progress-bar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .upload-section,
+  .files-list-section {
+    padding: 1.5rem;
+  }
+
+  .drop-zone {
+    padding: 2rem 1rem;
+    min-height: 250px;
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+  }
+
+  .files-grid {
+    grid-template-columns: 1fr;
+  }
+}
+</style>

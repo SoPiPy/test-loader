@@ -246,28 +246,56 @@ async function saveChanges() {
 <style scoped>
 .data-editor-layout {
   display: flex;
-  height: calc(100vh - 200px);
+  gap: 1.5rem;
+  height: calc(100vh - 280px);
   min-height: 600px;
 }
 
 .files-sidebar {
-  border-right: 1px solid rgba(0, 0, 0, 0.12);
+  width: 280px;
   height: 100%;
   overflow-y: auto;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+  padding: 1rem;
+}
+
+.files-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.files-sidebar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.files-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.3);
+  border-radius: 10px;
+}
+
+.files-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.5);
 }
 
 .file-list-item {
   border-left: 3px solid transparent;
-  transition: all 0.2s ease;
+  border-radius: 12px;
+  margin-bottom: 0.5rem;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .file-list-item:hover {
-  background-color: rgba(0, 0, 0, 0.04);
+  background-color: rgba(102, 126, 234, 0.05);
+  transform: translateX(4px);
 }
 
 .file-list-item.v-list-item--active {
-  border-left-color: rgb(var(--v-theme-primary));
-  background-color: rgba(var(--v-theme-primary), 0.08);
+  border-left-color: #667eea;
+  background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.15);
 }
 
 .main-content {
@@ -281,15 +309,60 @@ async function saveChanges() {
   position: sticky;
   top: 0;
   z-index: 10;
-  background-color: white;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid #e2e8f0;
+  padding: 1.5rem;
+  border-radius: 20px 20px 0 0;
 }
 
 .table-container {
   overflow: auto;
-  height: calc(100% - 64px);
+  height: calc(100% - 80px);
+  padding: 1.5rem;
+}
+
+.table-container::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.table-container::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 10px;
+}
+
+.table-container::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
 }
 
 .h-100 {
   height: 100%;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(20px);
+  border-radius: 20px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+@media (max-width: 968px) {
+  .data-editor-layout {
+    flex-direction: column;
+    height: auto;
+  }
+
+  .files-sidebar {
+    width: 100%;
+    max-height: 300px;
+  }
+
+  .main-content {
+    min-height: 500px;
+  }
 }
 </style>

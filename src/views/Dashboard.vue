@@ -1,75 +1,64 @@
 <template>
   <v-app>
-    <v-app-bar color="primary" prominent>
-      <v-app-bar-title class="text-white">
-        <v-icon class="mr-2">mdi-database</v-icon>
-        Data Processing Platform
-      </v-app-bar-title>
+    <div class="modern-header">
+      <div class="header-gradient"></div>
+      <div class="header-content">
+        <div class="header-left">
+          <div class="logo-container floating-element">
+            <v-icon size="40" color="white">mdi-database-cog</v-icon>
+          </div>
+          <div class="title-container">
+            <h1 class="header-title">Data Processing Platform</h1>
+            <p class="header-subtitle">AI-powered data analysis and insights</p>
+          </div>
+        </div>
 
-      <template v-slot:append>
-        <v-chip class="mr-4">
-          <v-icon left>mdi-account</v-icon>
-          {{ authStore.user?.email }}
-        </v-chip>
-        <v-btn icon @click="handleLogout">
-          <v-icon>mdi-logout</v-icon>
-        </v-btn>
-      </template>
-    </v-app-bar>
+        <div class="header-right">
+          <div class="user-chip glass-card">
+            <v-icon size="20" class="mr-2" color="primary">mdi-account-circle</v-icon>
+            <span class="user-email">{{ authStore.user?.email }}</span>
+          </div>
+          <v-btn
+            icon
+            variant="text"
+            class="logout-btn"
+            @click="handleLogout"
+          >
+            <v-icon color="white">mdi-logout</v-icon>
+          </v-btn>
+        </div>
+      </div>
 
-    <v-main class="bg-grey-lighten-4">
-      <v-container fluid>
-        <v-tabs v-model="tab" align-tabs="center" color="primary" class="mb-4">
-          <v-tab value="upload">
-            <v-icon left>mdi-upload</v-icon>
-            Upload
-          </v-tab>
-          <v-tab value="status">
-            <v-icon left>mdi-progress-check</v-icon>
-            Status
+      <div class="tabs-container">
+        <div class="floating-tabs glass-card">
+          <div
+            v-for="tabItem in tabs"
+            :key="tabItem.value"
+            class="tab-item"
+            :class="{ active: tab === tabItem.value }"
+            @click="tab = tabItem.value"
+          >
+            <v-icon :size="20" class="tab-icon">{{ tabItem.icon }}</v-icon>
+            <span class="tab-label">{{ tabItem.label }}</span>
             <v-badge
-              v-if="activeJobsCount > 0"
+              v-if="tabItem.value === 'status' && activeJobsCount > 0"
               :content="activeJobsCount"
-              color="orange"
-              class="ml-2"
+              color="error"
+              inline
+              class="tab-badge"
             ></v-badge>
-          </v-tab>
-          <v-tab value="data">
-            <v-icon left>mdi-table-edit</v-icon>
-            Data
-          </v-tab>
-          <v-tab value="presentation">
-            <v-icon left>mdi-presentation</v-icon>
-            Presentation
-          </v-tab>
-          <v-tab value="qa">
-            <v-icon left>mdi-chat-question</v-icon>
-            Q&A
-          </v-tab>
-        </v-tabs>
+          </div>
+          <div class="tab-indicator" :style="tabIndicatorStyle"></div>
+        </div>
+      </div>
+    </div>
 
-        <v-window v-model="tab">
-          <v-window-item value="upload">
-            <file-upload />
-          </v-window-item>
-
-          <v-window-item value="status">
-            <job-status />
-          </v-window-item>
-
-          <v-window-item value="data">
-            <data-table />
-          </v-window-item>
-
-          <v-window-item value="presentation">
-            <presentation-generator />
-          </v-window-item>
-
-          <v-window-item value="qa">
-            <question-answer />
-          </v-window-item>
-        </v-window>
-      </v-container>
+    <v-main class="modern-main">
+      <div class="content-wrapper">
+        <transition name="fade" mode="out-in">
+          <component :is="currentComponent" :key="tab" />
+        </transition>
+      </div>
     </v-main>
   </v-app>
 </template>
@@ -93,6 +82,34 @@ const jobsStore = useJobsStore();
 
 const tab = ref('upload');
 
+const tabs = [
+  { value: 'upload', label: 'Upload', icon: 'mdi-upload' },
+  { value: 'status', label: 'Status', icon: 'mdi-progress-check' },
+  { value: 'data', label: 'Data', icon: 'mdi-table-edit' },
+  { value: 'presentation', label: 'Presentation', icon: 'mdi-presentation' },
+  { value: 'qa', label: 'Q&A', icon: 'mdi-chat-question' },
+];
+
+const currentComponent = computed(() => {
+  const components: Record<string, any> = {
+    upload: FileUpload,
+    status: JobStatus,
+    data: DataTable,
+    presentation: PresentationGenerator,
+    qa: QuestionAnswer,
+  };
+  return components[tab.value];
+});
+
+const tabIndicatorStyle = computed(() => {
+  const index = tabs.findIndex((t) => t.value === tab.value);
+  const width = 100 / tabs.length;
+  return {
+    transform: `translateX(${index * 100}%)`,
+    width: `${width}%`,
+  };
+});
+
 onMounted(() => {
   filesStore.initializeMockData();
   jobsStore.initializeMockJobs();
@@ -114,3 +131,215 @@ onUnmounted(() => {
   jobsStore.stopAllPolling();
 });
 </script>
+
+<style scoped>
+.modern-header {
+  position: relative;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 0;
+  overflow: hidden;
+}
+
+.header-gradient {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+    radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+.header-content {
+  position: relative;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem 1.5rem;
+  z-index: 1;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.logo-container {
+  width: 64px;
+  height: 64px;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.title-container {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.header-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: white;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.header-subtitle {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.85);
+  margin: 0;
+  font-weight: 400;
+}
+
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-chip {
+  display: flex;
+  align-items: center;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 50px;
+}
+
+.user-email {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #667eea;
+}
+
+.logout-btn {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.logout-btn:hover {
+  background: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.tabs-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  padding: 0 3rem 2rem;
+  z-index: 1;
+}
+
+.floating-tabs {
+  display: flex;
+  position: relative;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 16px;
+  gap: 0.5rem;
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+}
+
+.tab-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  border-radius: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 2;
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.9rem;
+  user-select: none;
+}
+
+.tab-item:hover {
+  background: rgba(102, 126, 234, 0.08);
+  color: #667eea;
+}
+
+.tab-item.active {
+  color: white;
+}
+
+.tab-item.active .tab-icon {
+  color: white !important;
+}
+
+.tab-icon {
+  transition: all 0.3s ease;
+}
+
+.tab-label {
+  font-weight: 600;
+}
+
+.tab-badge {
+  margin-left: 0.25rem;
+}
+
+.tab-indicator {
+  position: absolute;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  left: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 1;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+.modern-main {
+  background: transparent;
+  padding: 2rem 3rem;
+  min-height: calc(100vh - 240px);
+}
+
+.content-wrapper {
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+@media (max-width: 768px) {
+  .header-content {
+    flex-direction: column;
+    gap: 1rem;
+    padding: 1.5rem;
+  }
+
+  .header-title {
+    font-size: 1.25rem;
+  }
+
+  .header-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .floating-tabs {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .tab-label {
+    display: none;
+  }
+
+  .modern-main {
+    padding: 1rem;
+  }
+}
+</style>
