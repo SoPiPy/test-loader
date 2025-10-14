@@ -203,7 +203,7 @@ function formatTime(date: Date): string {
   flex-direction: column;
   height: calc(100vh - 280px);
   max-height: calc(100vh - 280px);
-  overflow: hidden;
+  overflow: visible;
 }
 
 .section-header {
@@ -240,7 +240,7 @@ function formatTime(date: Date): string {
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  overflow: hidden;
+  overflow: visible;
   min-height: 0;
 }
 
@@ -251,7 +251,7 @@ function formatTime(date: Date): string {
 
 .file-selector {
   flex-shrink: 0;
-  overflow: visible;
+  position: relative;
   z-index: 10;
 }
 
@@ -265,17 +265,20 @@ function formatTime(date: Date): string {
 
 .modern-select {
   border-radius: 12px;
-  overflow: visible;
 }
 
-.modern-select :deep(.v-field),
-.modern-select :deep(.v-overlay-container) {
-  overflow: visible;
+.modern-select :deep(.v-field__input) {
+  min-height: 48px;
+}
+
+.modern-select :deep(.v-select__menu-icon) {
+  margin-inline-start: 4px;
 }
 
 .chat-container {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
   background: rgba(248, 250, 252, 0.5);
   border-radius: 16px;
