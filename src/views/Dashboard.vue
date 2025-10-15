@@ -1,60 +1,88 @@
 <template>
   <v-app>
-    <div class="modern-header">
-      <div class="header-gradient"></div>
-      <div class="header-content">
-        <div class="header-left">
-          <div class="logo-container floating-element">
-            <v-icon size="40" color="white">mdi-database-cog</v-icon>
-          </div>
-          <div class="title-container">
-            <h1 class="header-title">Data Processing Platform</h1>
-            <p class="header-subtitle">AI-powered data analysis and insights</p>
-          </div>
-        </div>
+    <v-main class="modern-main">
+      <div class="modern-header">
+        <div class="header-gradient"></div>
 
-        <div class="header-right">
-          <v-btn
-            icon
-            variant="text"
-            class="theme-btn"
-            @click="toggleTheme"
-          >
-            <v-icon color="white">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
-          </v-btn>
-        </div>
+        <v-container fluid class="header-container">
+          <v-row align="center" justify="space-between" no-gutters>
+            <v-col cols="auto">
+              <div class="header-left">
+                <v-avatar
+                  size="64"
+                  rounded="lg"
+                  class="logo-container"
+                >
+                  <v-icon size="40" color="white">mdi-database-cog</v-icon>
+                </v-avatar>
+
+                <div class="title-container">
+                  <h1 class="header-title">Data Processing Platform</h1>
+                  <p class="header-subtitle">AI-powered data analysis and insights</p>
+                </div>
+              </div>
+            </v-col>
+
+            <v-col cols="auto">
+              <v-btn
+                icon
+                variant="text"
+                class="theme-btn"
+                @click="toggleTheme"
+              >
+                <v-icon color="white">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
+              </v-btn>
+            </v-col>
+          </v-row>
+
+          <v-row justify="center" class="tabs-row">
+            <v-col cols="auto">
+              <v-card class="floating-tabs" rounded="lg" elevation="0">
+                <v-tabs
+                  v-model="tab"
+                  color="primary"
+                  bg-color="transparent"
+                  slider-color="transparent"
+                  height="56"
+                  show-arrows
+                  density="comfortable"
+                >
+                  <v-tab
+                    v-for="tabItem in tabs"
+                    :key="tabItem.value"
+                    :value="tabItem.value"
+                    class="tab-item"
+                    rounded="lg"
+                  >
+                    <v-icon :size="20" class="tab-icon">{{ tabItem.icon }}</v-icon>
+                    <span class="tab-label">{{ tabItem.label }}</span>
+                    <v-badge
+                      v-if="tabItem.value === 'status' && activeJobsCount > 0"
+                      :content="activeJobsCount"
+                      color="error"
+                      inline
+                      class="tab-badge"
+                    ></v-badge>
+                  </v-tab>
+                </v-tabs>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-container>
       </div>
 
-      <div class="tabs-container">
-        <div class="floating-tabs glass-card">
-          <div
+      <v-container fluid class="content-container">
+        <v-window v-model="tab" class="fill-height">
+          <v-window-item
             v-for="tabItem in tabs"
             :key="tabItem.value"
-            class="tab-item"
-            :class="{ active: tab === tabItem.value }"
-            @click="tab = tabItem.value"
+            :value="tabItem.value"
+            class="fill-height"
           >
-            <v-icon :size="20" class="tab-icon">{{ tabItem.icon }}</v-icon>
-            <span class="tab-label">{{ tabItem.label }}</span>
-            <v-badge
-              v-if="tabItem.value === 'status' && activeJobsCount > 0"
-              :content="activeJobsCount"
-              color="error"
-              inline
-              class="tab-badge"
-            ></v-badge>
-          </div>
-          <div class="tab-indicator" :style="tabIndicatorStyle"></div>
-        </div>
-      </div>
-    </div>
-
-    <v-main class="modern-main">
-      <div class="content-wrapper">
-        <transition name="fade" mode="out-in">
-          <component :is="currentComponent" :key="tab" />
-        </transition>
-      </div>
+            <component :is="getComponent(tabItem.value)" />
+          </v-window-item>
+        </v-window>
+      </v-container>
     </v-main>
   </v-app>
 </template>
@@ -89,7 +117,7 @@ const tabs = [
   { value: 'qa', label: 'Q&A', icon: 'mdi-chat-question' },
 ];
 
-const currentComponent = computed(() => {
+function getComponent(value: string) {
   const components: Record<string, any> = {
     upload: FileUpload,
     status: JobStatus,
@@ -97,17 +125,8 @@ const currentComponent = computed(() => {
     presentation: PresentationGenerator,
     qa: QuestionAnswer,
   };
-  return components[tab.value];
-});
-
-const tabIndicatorStyle = computed(() => {
-  const index = tabs.findIndex((t) => t.value === tab.value);
-  const width = 100 / tabs.length;
-  return {
-    transform: `translateX(${index * 100}%)`,
-    width: `${width}%`,
-  };
-});
+  return components[value];
+}
 
 onMounted(() => {
   filesStore.initializeMockData();
@@ -128,9 +147,9 @@ onUnmounted(() => {
 <style scoped>
 .modern-header {
   position: relative;
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  padding: 0;
-  overflow: hidden;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  padding: 1.25rem 0 !important;
+  flex-shrink: 0;
 }
 
 .header-gradient {
@@ -143,14 +162,11 @@ onUnmounted(() => {
     radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
     radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
   pointer-events: none;
+  z-index: 0;
 }
 
-.header-content {
+.header-container {
   position: relative;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 2rem 3rem 1.5rem;
   z-index: 1;
 }
 
@@ -161,14 +177,8 @@ onUnmounted(() => {
 }
 
 .logo-container {
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.2) !important;
   backdrop-filter: blur(10px);
-  border-radius: 16px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
@@ -193,124 +203,87 @@ onUnmounted(() => {
   font-weight: 400;
 }
 
-.header-right {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-}
-
-.user-chip {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 1rem;
-  border-radius: 50px;
-}
-
-.v-theme--light .user-chip {
-  background: rgba(255, 255, 255, 0.95);
-}
-
-.v-theme--dark .user-chip {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-
-.user-email {
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.v-theme--light .user-email {
-  color: #667eea;
-}
-
-.v-theme--dark .user-email {
-  color: #93c5fd;
-}
-
-.theme-btn,
-.logout-btn {
-  background: rgba(255, 255, 255, 0.2);
+.theme-btn {
+  background: rgba(255, 255, 255, 0.2) !important;
   backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.3);
   transition: all 0.3s ease;
 }
 
-.theme-btn:hover,
-.logout-btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+.theme-btn:hover {
+  background: rgba(255, 255, 255, 0.3) !important;
   transform: scale(1.05);
 }
 
-.tabs-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  padding: 0 3rem 2rem;
-  z-index: 1;
+.tabs-row {
+  margin-top: 1rem;
 }
 
 .floating-tabs {
-  display: flex;
   position: relative;
+  background: rgba(255, 255, 255, 0.95) !important;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2) !important;
   padding: 0.5rem;
-  border-radius: 16px;
-  gap: 0.5rem;
-}
-
-.v-theme--light .floating-tabs {
-  background: rgba(255, 255, 255, 0.95);
-  box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
 }
 
 .v-theme--dark .floating-tabs {
-  background: rgba(30, 41, 59, 0.8);
+  background: rgba(30, 41, 59, 0.8) !important;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4) !important;
+}
+
+:deep(.v-tabs) {
+  position: relative;
 }
 
 .tab-item {
   position: relative;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  font-weight: 600;
+  text-transform: none;
+  letter-spacing: normal;
+  min-width: auto;
   padding: 0.75rem 1.5rem;
-  cursor: pointer;
-  border-radius: 12px;
+  margin: 0 0.25rem;
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   z-index: 2;
-  font-weight: 500;
-  font-size: 0.9rem;
-  user-select: none;
-}
-
-.v-theme--light .tab-item {
   color: #64748b;
+  border-radius: 12px;
 }
 
 .v-theme--dark .tab-item {
   color: #94a3b8;
 }
 
-.v-theme--light .tab-item:hover {
+.tab-item:hover:not(.v-tab--selected) {
   background: rgba(102, 126, 234, 0.08);
   color: #667eea;
+  border-radius: 12px;
 }
 
-.v-theme--dark .tab-item:hover {
+.v-theme--dark .tab-item:hover:not(.v-tab--selected) {
   background: rgba(147, 197, 253, 0.08);
   color: #93c5fd;
 }
 
-.tab-item.active {
-  color: white;
+:deep(.v-tab--selected) {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+  border-radius: 12px !important;
 }
 
-.tab-item.active .tab-icon {
+.v-theme--dark :deep(.v-tab--selected) {
+  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%) !important;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+:deep(.v-tab--selected .v-icon) {
   color: white !important;
 }
 
 .tab-icon {
+  margin-right: 0.5rem;
   transition: all 0.3s ease;
 }
 
@@ -322,47 +295,41 @@ onUnmounted(() => {
   margin-left: 0.25rem;
 }
 
-.tab-indicator {
-  position: absolute;
-  top: 0.5rem;
-  bottom: 0.5rem;
-  left: 0.5rem;
-  border-radius: 12px;
-  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-  z-index: 1;
-}
-
-.v-theme--light .tab-indicator {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-}
-
-.v-theme--dark .tab-indicator {
-  background: linear-gradient(135deg, #3b82f6 0%, #8b5cf6 100%);
-  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-}
-
 .modern-main {
   background: transparent;
-  padding: 2rem 3rem;
-  height: calc(100vh - 240px);
+  padding-top: 0 !important;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
 }
 
-.content-wrapper {
-  max-width: 1400px;
-  margin: 0 auto;
+.content-container {
+  max-width: 100%;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.fill-height {
   height: 100%;
   overflow: hidden;
 }
 
-@media (max-width: 768px) {
-  .header-content {
-    flex-direction: column;
-    gap: 1rem;
-    padding: 1.5rem;
-  }
+:deep(.v-window__container) {
+  height: 100%;
+}
 
+:deep(.v-window-item) {
+  height: 100%;
+}
+
+@media (max-width: 768px) {
   .header-title {
     font-size: 1.25rem;
   }
@@ -371,17 +338,13 @@ onUnmounted(() => {
     font-size: 0.75rem;
   }
 
-  .floating-tabs {
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-
   .tab-label {
     display: none;
   }
 
-  .modern-main {
-    padding: 1rem;
+  .content-container {
+    padding-left: 1rem;
+    padding-right: 1rem;
   }
 }
 </style>

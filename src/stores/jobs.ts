@@ -11,6 +11,33 @@ export const useJobsStore = defineStore('jobs', () => {
   function initializeMockJobs() {
     const mockJobsData: Job[] = [
       {
+        id: 'job-1',
+        fileId: 'file-1',
+        status: 'completed',
+        progress: 100,
+        message: 'Extraction completed successfully',
+        createdAt: new Date(Date.now() - 3600000),
+        updatedAt: new Date(Date.now() - 3000000),
+      },
+      {
+        id: 'job-2',
+        fileId: 'file-2',
+        status: 'completed',
+        progress: 100,
+        message: 'Extraction completed successfully',
+        createdAt: new Date(Date.now() - 7200000),
+        updatedAt: new Date(Date.now() - 6600000),
+      },
+      {
+        id: 'job-3',
+        fileId: 'file-3',
+        status: 'completed',
+        progress: 100,
+        message: 'Extraction completed successfully',
+        createdAt: new Date(Date.now() - 10800000),
+        updatedAt: new Date(Date.now() - 10200000),
+      },
+      {
         id: 'job-4',
         fileId: 'file-4',
         status: 'processing',
