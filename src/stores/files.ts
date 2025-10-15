@@ -6,12 +6,17 @@ import { initializeMockFiles } from '@/services/mock-data';
 
 export const useFilesStore = defineStore('files', () => {
   const files = ref<Map<string, FileUpload>>(new Map());
+  const selectedFileId = ref<string>('');
 
   function initializeMockData() {
     const mockFiles = initializeMockFiles();
     mockFiles.forEach(file => {
       files.value.set(file.id, file);
     });
+  }
+
+  function setSelectedFile(fileId: string) {
+    selectedFileId.value = fileId;
   }
 
   function addFile(file: File): string {
@@ -84,6 +89,7 @@ export const useFilesStore = defineStore('files', () => {
 
   return {
     files,
+    selectedFileId,
     addFile,
     uploadFile,
     updateFileStatus,
@@ -91,5 +97,6 @@ export const useFilesStore = defineStore('files', () => {
     getFile,
     getAllFiles,
     initializeMockData,
+    setSelectedFile,
   };
 });

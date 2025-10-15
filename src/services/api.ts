@@ -57,7 +57,7 @@ class ApiService {
     if (USE_MOCK) {
       await this.delay(1500);
       return {
-        downloadUrl: `#mock-presentation-${request.fileId}-${request.format}`,
+        downloadUrl: `#mock-presentation-${request.jobId}-${request.format}`,
       };
     }
     throw new Error('Backend not configured');

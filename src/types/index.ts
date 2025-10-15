@@ -33,7 +33,7 @@ export interface TableData {
 }
 
 export interface PresentationRequest {
-  fileId: string;
+  jobId: string;
   format: 'pdf' | 'pptx';
   template?: string;
 }
