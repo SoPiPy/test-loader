@@ -1,14 +1,64 @@
 <template>
-  <div class="status-container glass-card">
-    <div class="section-header">
-      <div class="header-icon-wrapper floating-element">
-        <v-icon size="32" color="primary">mdi-progress-check</v-icon>
-      </div>
-      <h2 class="section-title gradient-text">Processing Status</h2>
-      <p class="section-subtitle">Monitor your file processing jobs in real-time</p>
+  <div class="status-layout">
+    <div class="jobs-sidebar">
+      <v-list density="compact" class="pa-0">
+        <v-list-subheader class="text-uppercase font-weight-bold">
+          <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
+          All Jobs ({{ allJobs.length }})
+        </v-list-subheader>
+
+        <v-divider></v-divider>
+
+        <div v-if="allJobs.length === 0" class="pa-4 text-center text-grey">
+          <v-icon size="48" color="grey-lighten-1">mdi-briefcase-outline</v-icon>
+          <p class="text-caption mt-2">No jobs yet</p>
+        </div>
+
+        <v-list-item
+          v-for="job in allJobs"
+          :key="job.id"
+          :active="selectedJobId === job.id"
+          @click="selectJob(job.id)"
+          class="job-list-item"
+        >
+          <template v-slot:prepend>
+            <v-icon :color="getJobIconColor(job.status)">
+              {{ getStatusIcon(job.status) }}
+            </v-icon>
+          </template>
+
+          <v-list-item-title class="text-body-2">
+            Job #{{ job.id.slice(-6) }}
+          </v-list-item-title>
+
+          <v-list-item-subtitle class="text-caption">
+            {{ job.status.toUpperCase() }}
+          </v-list-item-subtitle>
+
+          <template v-slot:append>
+            <v-chip
+              v-if="job.status === 'processing'"
+              size="x-small"
+              color="orange"
+              variant="flat"
+            >
+              {{ job.progress }}%
+            </v-chip>
+          </template>
+        </v-list-item>
+      </v-list>
     </div>
 
-    <div class="status-content">
+    <div class="status-container glass-card">
+      <div class="section-header">
+        <div class="header-icon-wrapper floating-element">
+          <v-icon size="32" color="primary">mdi-progress-check</v-icon>
+        </div>
+        <h2 class="section-title gradient-text">Processing Status</h2>
+        <p class="section-subtitle">Monitor your file processing jobs in real-time</p>
+      </div>
+
+      <div class="status-content">
       <div class="stats-bar">
         <div class="stat-card">
           <v-icon size="28" color="primary">mdi-file-clock</v-icon>
@@ -126,6 +176,7 @@
         </div>
       </div>
     </div>
+    </div>
   </div>
 </template>
 
@@ -133,11 +184,38 @@
 import { ref, computed } from 'vue';
 import { useFilesStore } from '@/stores/files';
 import { useJobsStore } from '@/stores/jobs';
+import type { Job } from '@/types';
 
 const filesStore = useFilesStore();
 const jobsStore = useJobsStore();
 
+const selectedJobId = ref<string | null>(null);
 const expandedJobs = ref<string[]>([]);
+
+const allJobs = computed(() => {
+  return Array.from(jobsStore.jobs.values()).sort((a, b) =>
+    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+  );
+});
+
+function selectJob(jobId: string) {
+  selectedJobId.value = jobId;
+  const file = filesStore.getAllFiles().find(f => f.jobId === jobId);
+  if (file && !expandedJobs.value.includes(file.id)) {
+    expandedJobs.value.push(file.id);
+  }
+}
+
+function getJobIconColor(status: string): string {
+  const colors: Record<string, string> = {
+    uploading: 'blue',
+    uploaded: 'cyan',
+    processing: 'orange',
+    completed: 'green',
+    failed: 'red',
+  };
+  return colors[status] || 'grey';
+}
 
 const processingFiles = computed(() =>
   filesStore.getAllFiles().filter(
@@ -217,10 +295,66 @@ function toggleJobDetails(fileId: string) {
 </script>
 
 <style scoped>
-.status-container {
-  padding: 2rem;
+.status-layout {
+  display: flex;
+  gap: 1.5rem;
   height: calc(100vh - 280px);
   max-height: calc(100vh - 280px);
+  overflow: hidden;
+}
+
+.jobs-sidebar {
+  width: 280px;
+  flex-shrink: 0;
+  background: white;
+  border-radius: 16px;
+  border: 2px solid #e2e8f0;
+  overflow-y: auto;
+}
+
+.v-theme--dark .jobs-sidebar {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.jobs-sidebar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.jobs-sidebar::-webkit-scrollbar-track {
+  background: rgba(0, 0, 0, 0.05);
+  border-radius: 10px;
+}
+
+.jobs-sidebar::-webkit-scrollbar-thumb {
+  background: rgba(102, 126, 234, 0.5);
+  border-radius: 10px;
+}
+
+.jobs-sidebar::-webkit-scrollbar-thumb:hover {
+  background: rgba(102, 126, 234, 0.8);
+}
+
+.job-list-item {
+  border-bottom: 1px solid #e2e8f0;
+  transition: background-color 0.2s ease;
+}
+
+.v-theme--dark .job-list-item {
+  border-bottom-color: rgba(255, 255, 255, 0.05);
+}
+
+.job-list-item:hover {
+  background-color: rgba(102, 126, 234, 0.05);
+}
+
+.job-list-item:last-child {
+  border-bottom: none;
+}
+
+.status-container {
+  flex: 1;
+  padding: 2rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -534,6 +668,15 @@ function toggleJobDetails(fileId: string) {
 }
 
 @media (max-width: 768px) {
+  .status-layout {
+    flex-direction: column;
+  }
+
+  .jobs-sidebar {
+    width: 100%;
+    max-height: 200px;
+  }
+
   .status-container {
     padding: 1.5rem;
   }
