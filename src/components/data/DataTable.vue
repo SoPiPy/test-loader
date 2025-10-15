@@ -448,12 +448,17 @@ async function saveChanges() {
 .header-text {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 56px;
 }
 
 .card-title {
   font-size: 1.5rem;
   font-weight: 700;
-  margin: 0 0 0.25rem 0;
+  margin: 0;
+  line-height: 1.2;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -463,7 +468,8 @@ async function saveChanges() {
 .card-subtitle {
   font-size: 0.875rem;
   color: #64748b;
-  margin: 0;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.3;
 }
 
 .header-actions {

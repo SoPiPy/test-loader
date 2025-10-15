@@ -260,8 +260,7 @@ function formatSize(bytes: number): string {
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 1rem;
-  margin-bottom: 0.5rem;
+  gap: 1.25rem;
 }
 
 .header-icon-wrapper {
@@ -272,18 +271,21 @@ function formatSize(bytes: number): string {
   display: flex;
   align-items: center;
   justify-content: center;
+  flex-shrink: 0;
 }
 
 .section-title {
   font-size: 2rem;
   font-weight: 700;
   margin: 0;
+  line-height: 1.2;
 }
 
 .section-subtitle {
   color: #64748b;
   font-size: 1rem;
-  margin: 0;
+  margin: 0.25rem 0 0 0;
+  line-height: 1.4;
 }
 
 .drop-zone {
