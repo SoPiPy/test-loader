@@ -1,155 +1,117 @@
 <template>
-  <div class="presentation-layout">
-    <div class="jobs-sidebar">
-      <v-list density="compact" class="pa-0">
-        <v-list-subheader class="text-uppercase font-weight-bold">
-          <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
-          Jobs ({{ completedJobs.length }})
-        </v-list-subheader>
-
-        <v-divider></v-divider>
-
-        <div v-if="completedJobs.length === 0" class="pa-4 text-center text-grey">
-          <v-icon size="48" color="grey-lighten-1">mdi-briefcase-outline</v-icon>
-          <p class="text-caption mt-2">No jobs completed yet</p>
-        </div>
-
-        <v-list-item
-          v-for="job in completedJobs"
-          :key="job.id"
-          :active="selectedJobId === job.id"
-          @click="selectJob(job.id)"
-          class="job-list-item"
-        >
-          <template v-slot:prepend>
-            <v-icon :color="selectedJobId === job.id ? 'primary' : 'success'">
-              mdi-check-circle
-            </v-icon>
-          </template>
-
-          <v-list-item-title class="text-body-2">
-            Job #{{ job.id.slice(-6) }}
-          </v-list-item-title>
-
-          <v-list-item-subtitle class="text-caption">
-            {{ job.message || 'Completed' }}
-          </v-list-item-subtitle>
-        </v-list-item>
-      </v-list>
+  <div class="presentation-container glass-card">
+    <div class="section-header">
+      <div class="header-icon-wrapper floating-element">
+        <v-icon size="32" color="primary">mdi-presentation</v-icon>
+      </div>
+      <h2 class="section-title gradient-text">Generate Presentation</h2>
+      <p class="section-subtitle">Transform your data into beautiful presentations</p>
     </div>
 
-    <div class="main-content">
-      <v-card class="h-100">
-        <v-card-title class="sticky-header">
-          <div class="d-flex align-center">
-            <v-icon class="mr-2">mdi-presentation</v-icon>
-            <span>Generate Presentation</span>
+    <div class="presentation-content">
+      <div class="form-section">
+        <label class="form-label">Select File</label>
+        <v-select
+          v-model="selectedFileId"
+          :items="completedFiles"
+          item-title="name"
+          item-value="id"
+          placeholder="Choose a file to generate presentation from"
+          variant="solo"
+          density="comfortable"
+          prepend-inner-icon="mdi-file"
+          class="modern-select"
+        ></v-select>
+      </div>
+
+      <div class="options-grid">
+        <div class="form-section">
+          <label class="form-label">Output Format</label>
+          <v-select
+            v-model="format"
+            :items="formats"
+            variant="solo"
+            density="comfortable"
+            prepend-inner-icon="mdi-file-document"
+            class="modern-select"
+          ></v-select>
+        </div>
+
+        <div class="form-section">
+          <label class="form-label">Template (Optional)</label>
+          <v-select
+            v-model="template"
+            :items="templates"
+            placeholder="Choose a template"
+            variant="solo"
+            density="comfortable"
+            prepend-inner-icon="mdi-palette"
+            clearable
+            class="modern-select"
+          ></v-select>
+        </div>
+      </div>
+
+      <v-btn
+        size="large"
+        color="primary"
+        :disabled="!selectedFileId || generating"
+        :loading="generating"
+        @click="generatePresentation"
+        block
+        class="generate-btn"
+      >
+        <v-icon class="mr-2">mdi-sparkles</v-icon>
+        Generate Presentation
+      </v-btn>
+    </div>
+
+    <div v-if="generatedPresentations.length > 0" class="generated-section glass-card mt-6">
+      <div class="list-header">
+        <h3 class="list-title">Generated Presentations</h3>
+        <v-chip size="small" color="success" variant="tonal">
+          {{ generatedPresentations.length }} total
+        </v-chip>
+      </div>
+
+      <div class="presentations-list">
+        <div
+          v-for="(presentation, index) in generatedPresentations"
+          :key="index"
+          class="presentation-card"
+        >
+          <div class="presentation-icon">
+            <v-icon size="32" color="white">mdi-file-presentation-box</v-icon>
           </div>
-        </v-card-title>
-
-        <v-divider></v-divider>
-
-        <v-card-text class="content-scroll">
-          <div v-if="!selectedJobId" class="text-center py-12 text-grey">
-            <v-icon size="80" color="grey-lighten-1">mdi-presentation</v-icon>
-            <p class="mt-4 text-h6">Select a job from the sidebar</p>
-            <p class="text-body-2">Choose a job to generate presentation from</p>
+          <div class="presentation-info">
+            <p class="presentation-name">{{ presentation.fileName }}</p>
+            <p class="presentation-meta">
+              {{ presentation.format.toUpperCase() }} • {{ new Date(presentation.createdAt).toLocaleString() }}
+            </p>
           </div>
-
-          <div v-else class="form-content">
-            <div class="form-section">
-              <label class="form-label">Output Format</label>
-              <v-select
-                v-model="format"
-                :items="formats"
-                variant="solo"
-                density="comfortable"
-                prepend-inner-icon="mdi-file-document"
-                class="modern-select"
-              ></v-select>
-            </div>
-
-            <div class="form-section">
-              <label class="form-label">Template (Optional)</label>
-              <v-select
-                v-model="template"
-                :items="templates"
-                placeholder="Choose a template"
-                variant="solo"
-                density="comfortable"
-                prepend-inner-icon="mdi-palette"
-                clearable
-                class="modern-select"
-              ></v-select>
-            </div>
-
-            <v-btn
-              size="large"
-              color="primary"
-              :disabled="generating"
-              :loading="generating"
-              @click="generatePresentation"
-              block
-              class="generate-btn"
-            >
-              <v-icon class="mr-2">mdi-sparkles</v-icon>
-              Generate Presentation
-            </v-btn>
-
-            <div v-if="generatedPresentations.length > 0" class="generated-section mt-6">
-              <div class="list-header">
-                <h3 class="list-title">Generated Presentations</h3>
-                <v-chip size="small" color="success" variant="tonal">
-                  {{ generatedPresentations.length }} total
-                </v-chip>
-              </div>
-
-              <div class="presentations-list">
-                <div
-                  v-for="(presentation, index) in generatedPresentations"
-                  :key="index"
-                  class="presentation-card"
-                >
-                  <div class="presentation-icon">
-                    <v-icon size="32" color="white">mdi-file-presentation-box</v-icon>
-                  </div>
-                  <div class="presentation-info">
-                    <p class="presentation-name">{{ presentation.fileName }}</p>
-                    <p class="presentation-meta">
-                      {{ presentation.format.toUpperCase() }} • {{ new Date(presentation.createdAt).toLocaleString() }}
-                    </p>
-                  </div>
-                  <v-btn
-                    icon
-                    variant="tonal"
-                    color="primary"
-                    :href="presentation.downloadUrl"
-                    download
-                  >
-                    <v-icon>mdi-download</v-icon>
-                  </v-btn>
-                </div>
-              </div>
-            </div>
-          </div>
-        </v-card-text>
-      </v-card>
+          <v-btn
+            icon
+            variant="tonal"
+            color="primary"
+            :href="presentation.downloadUrl"
+            download
+          >
+            <v-icon>mdi-download</v-icon>
+          </v-btn>
+        </div>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useJobsStore } from '@/stores/jobs';
-import { useSelectedJobStore } from '@/stores/selectedJob';
+import { ref, computed } from 'vue';
+import { useFilesStore } from '@/stores/files';
 import api from '@/services/api';
 
-const jobsStore = useJobsStore();
-const selectedJobStore = useSelectedJobStore();
+const filesStore = useFilesStore();
 
-const { selectedJobId } = storeToRefs(selectedJobStore);
-
+const selectedFileId = ref<string>('');
 const format = ref<'pdf' | 'pptx'>('pdf');
 const template = ref<string>('');
 const generating = ref(false);
@@ -161,9 +123,9 @@ const generatedPresentations = ref<Array<{
   createdAt: Date;
 }>>([]);
 
-const completedJobs = computed(() => {
-  return Array.from(jobsStore.jobs.values()).filter(j => j.status === 'completed');
-});
+const completedFiles = computed(() =>
+  filesStore.getAllFiles().filter((f) => f.status === 'completed')
+);
 
 const formats = [
   { title: 'PDF', value: 'pdf' },
@@ -177,27 +139,26 @@ const templates = [
   { title: 'Creative', value: 'creative' },
 ];
 
-function selectJob(jobId: string) {
-  selectedJobStore.setSelectedJob(jobId);
-}
-
 async function generatePresentation() {
-  if (!selectedJobId.value) return;
+  if (!selectedFileId.value) return;
 
   generating.value = true;
   try {
     const { downloadUrl } = await api.generatePresentation({
-      jobId: selectedJobId.value,
+      fileId: selectedFileId.value,
       format: format.value,
       template: template.value || undefined,
     });
 
-    generatedPresentations.value.unshift({
-      fileName: `Job #${selectedJobId.value.slice(-6)} - Presentation`,
-      format: format.value,
-      downloadUrl,
-      createdAt: new Date(),
-    });
+    const file = filesStore.getFile(selectedFileId.value);
+    if (file) {
+      generatedPresentations.value.unshift({
+        fileName: file.name,
+        format: format.value,
+        downloadUrl,
+        createdAt: new Date(),
+      });
+    }
   } catch (error) {
     console.error('Failed to generate presentation:', error);
   } finally {
@@ -207,136 +168,63 @@ async function generatePresentation() {
 </script>
 
 <style scoped>
-.presentation-layout {
-  display: flex;
-  gap: 2rem;
+.presentation-container {
+  padding: 2rem;
   height: calc(100vh - 280px);
   max-height: calc(100vh - 280px);
-  overflow: hidden;
-}
-
-.jobs-sidebar {
-  width: 220px;
-  height: 100%;
   overflow-y: auto;
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-  padding: 1rem;
-  flex-shrink: 0;
-}
-
-.v-theme--light .jobs-sidebar {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-}
-
-.v-theme--dark .jobs-sidebar {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.jobs-sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.jobs-sidebar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.jobs-sidebar::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.3);
-  border-radius: 10px;
-}
-
-.jobs-sidebar::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.5);
-}
-
-.job-list-item {
-  border-left: 3px solid transparent;
-  border-radius: 12px;
-  margin-bottom: 0.5rem;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.job-list-item:hover {
-  background-color: rgba(102, 126, 234, 0.05);
-}
-
-.job-list-item.v-list-item--active {
-  border-left-color: #667eea;
-  background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
-  outline: 2px solid #667eea;
-  outline-offset: -2px;
-}
-
-.main-content {
-  flex: 1;
-  overflow: hidden;
   display: flex;
   flex-direction: column;
 }
 
-.h-100 {
-  height: 100%;
-  backdrop-filter: blur(20px);
-  border-radius: 20px;
-}
-
-.v-theme--light .h-100 {
-  background: rgba(255, 255, 255, 0.95);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
-}
-
-.v-theme--dark .h-100 {
-  background: rgba(30, 41, 59, 0.8);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-}
-
-.sticky-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-}
-
-.v-theme--light .sticky-header {
-  background: rgba(255, 255, 255, 0.98);
-}
-
-.v-theme--dark .sticky-header {
-  background: rgba(15, 23, 42, 0.98);
-}
-
-.content-scroll {
-  overflow: auto;
-  height: calc(100% - 80px);
-  padding: 1.5rem;
-}
-
-.content-scroll::-webkit-scrollbar {
+.presentation-container::-webkit-scrollbar {
   width: 8px;
-  height: 8px;
 }
 
-.content-scroll::-webkit-scrollbar-track {
+.presentation-container::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
-.content-scroll::-webkit-scrollbar-thumb {
+.presentation-container::-webkit-scrollbar-thumb {
   background: rgba(102, 126, 234, 0.5);
   border-radius: 10px;
 }
 
-.content-scroll::-webkit-scrollbar-thumb:hover {
+.presentation-container::-webkit-scrollbar-thumb:hover {
   background: rgba(102, 126, 234, 0.8);
 }
 
-.form-content {
+.section-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  flex-shrink: 0;
+}
+
+.header-icon-wrapper {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 1rem;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+}
+
+.section-subtitle {
+  color: #64748b;
+  font-size: 1rem;
+  margin: 0;
+}
+
+.presentation-content {
   max-width: 700px;
   margin: 0 auto;
 }
@@ -357,6 +245,13 @@ async function generatePresentation() {
   border-radius: 12px;
 }
 
+.options-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
 .generate-btn {
   margin-top: 2rem;
   padding: 1.5rem;
@@ -367,8 +262,8 @@ async function generatePresentation() {
 
 .generated-section {
   padding: 2rem;
-  border-radius: 16px;
-  background: rgba(0, 0, 0, 0.02);
+  margin-top: 2rem;
+  flex-shrink: 0;
 }
 
 .list-header {
@@ -440,19 +335,18 @@ async function generatePresentation() {
   margin: 0;
 }
 
-@media (max-width: 968px) {
-  .presentation-layout {
-    flex-direction: column;
-    height: auto;
+@media (max-width: 768px) {
+  .presentation-container,
+  .generated-section {
+    padding: 1.5rem;
   }
 
-  .jobs-sidebar {
-    width: 100%;
-    max-height: 300px;
+  .section-title {
+    font-size: 1.5rem;
   }
 
-  .main-content {
-    min-height: 500px;
+  .options-grid {
+    grid-template-columns: 1fr;
   }
 }
 </style>

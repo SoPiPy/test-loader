@@ -3,45 +3,7 @@ import type { Job, DataRow, QAResponse, FileUpload } from '@/types';
 export const mockJobs: Map<string, Job> = new Map();
 export const mockData: Map<string, { columns: string[]; rows: DataRow[] }> = new Map();
 
-function initializeMockJobs() {
-  const jobs: Job[] = [
-    {
-      id: 'job-1',
-      fileId: 'file-1',
-      status: 'completed',
-      progress: 100,
-      message: 'Extraction completed successfully',
-      createdAt: new Date(Date.now() - 3600000),
-      updatedAt: new Date(Date.now() - 3000000),
-    },
-    {
-      id: 'job-2',
-      fileId: 'file-2',
-      status: 'completed',
-      progress: 100,
-      message: 'Extraction completed successfully',
-      createdAt: new Date(Date.now() - 7200000),
-      updatedAt: new Date(Date.now() - 6600000),
-    },
-    {
-      id: 'job-3',
-      fileId: 'file-3',
-      status: 'completed',
-      progress: 100,
-      message: 'Extraction completed successfully',
-      createdAt: new Date(Date.now() - 10800000),
-      updatedAt: new Date(Date.now() - 10200000),
-    },
-  ];
-
-  jobs.forEach(job => {
-    mockJobs.set(job.id, job);
-    generateMockDataForJob(job.id);
-  });
-}
-
 export function initializeMockFiles(): FileUpload[] {
-  initializeMockJobs();
   const files: FileUpload[] = [
     {
       id: 'file-1',
@@ -95,6 +57,11 @@ export function initializeMockFiles(): FileUpload[] {
     },
   ];
 
+  files.forEach(file => {
+    if (file.status === 'completed') {
+      generateMockDataForFile(file.id, file.name);
+    }
+  });
 
   return files;
 }
@@ -123,7 +90,7 @@ export function updateMockJobProgress(jobId: string): void {
   if (job.progress >= 100) {
     job.status = 'completed';
     job.message = 'Extraction completed successfully';
-    generateMockDataForJob(jobId);
+    generateMockDataForFile(job.fileId, 'data.csv');
   } else {
     job.message = `Processing... ${job.progress}%`;
   }
@@ -131,56 +98,98 @@ export function updateMockJobProgress(jobId: string): void {
   mockJobs.set(jobId, job);
 }
 
-function generateMockDataForJob(jobId: string): void {
-  const columns = [
-    'id',
-    'company_name',
-    'revenue',
-    'expenses',
-    'profit',
-    'employees',
-    'industry',
-    'location',
-    'year_founded',
-    'ceo_name',
-  ];
+function generateMockDataForFile(fileId: string, fileName: string): void {
+  let columns: string[];
+  let rows: DataRow[] = [];
 
-  const row: DataRow = {
-    id: `file-${jobId}`,
-    company_name: generateCompanyName(),
-    revenue: `$${Math.floor(Math.random() * 5000000 + 1000000).toLocaleString()}`,
-    expenses: `$${Math.floor(Math.random() * 3000000 + 500000).toLocaleString()}`,
-    profit: `$${Math.floor(Math.random() * 2000000 + 100000).toLocaleString()}`,
-    employees: Math.floor(Math.random() * 500 + 50),
-    industry: getRandomIndustry(),
-    location: getRandomLocation(),
-    year_founded: Math.floor(Math.random() * 50 + 1974),
-    ceo_name: getRandomCEOName(),
-  };
+  if (fileName.includes('sales')) {
+    columns = ['id', 'product', 'quantity', 'price', 'revenue', 'date', 'region'];
+    const products = ['Laptop', 'Mouse', 'Keyboard', 'Monitor', 'Headphones', 'Webcam'];
+    const regions = ['North', 'South', 'East', 'West'];
 
-  mockData.set(jobId, { columns, rows: [row] });
-}
+    for (let i = 1; i <= 25; i++) {
+      const quantity = Math.floor(Math.random() * 50) + 1;
+      const price = Math.floor(Math.random() * 500) + 100;
+      rows.push({
+        id: `row-${i}`,
+        product: products[Math.floor(Math.random() * products.length)],
+        quantity,
+        price,
+        revenue: quantity * price,
+        date: new Date(Date.now() - Math.random() * 7776000000).toISOString().split('T')[0],
+        region: regions[Math.floor(Math.random() * regions.length)],
+      });
+    }
+  } else if (fileName.includes('customer')) {
+    columns = ['id', 'name', 'email', 'phone', 'city', 'status', 'joined'];
+    const names = ['John Smith', 'Emma Wilson', 'Michael Brown', 'Sarah Davis', 'James Johnson', 'Lisa Anderson'];
+    const cities = ['New York', 'Los Angeles', 'Chicago', 'Houston', 'Phoenix'];
+    const statuses = ['Active', 'Inactive', 'VIP'];
 
-function generateCompanyName(): string {
-  const prefixes = ['Tech', 'Global', 'Digital', 'Smart', 'Advanced', 'Future', 'Innovate'];
-  const suffixes = ['Solutions', 'Systems', 'Corp', 'Industries', 'Group', 'Enterprises'];
-  return `${prefixes[Math.floor(Math.random() * prefixes.length)]} ${suffixes[Math.floor(Math.random() * suffixes.length)]}`;
-}
+    for (let i = 1; i <= 30; i++) {
+      rows.push({
+        id: `row-${i}`,
+        name: names[Math.floor(Math.random() * names.length)],
+        email: `user${i}@example.com`,
+        phone: `555-${String(Math.floor(Math.random() * 9000) + 1000)}`,
+        city: cities[Math.floor(Math.random() * cities.length)],
+        status: statuses[Math.floor(Math.random() * statuses.length)],
+        joined: new Date(Date.now() - Math.random() * 31536000000).toISOString().split('T')[0],
+      });
+    }
+  } else if (fileName.includes('inventory')) {
+    columns = ['id', 'sku', 'item', 'stock', 'price', 'category', 'supplier'];
+    const items = ['Widget A', 'Component B', 'Part C', 'Module D', 'Unit E'];
+    const categories = ['Electronics', 'Hardware', 'Software', 'Accessories'];
+    const suppliers = ['Supplier Co', 'Global Parts', 'Tech Supply', 'Direct Wholesale'];
 
-function getRandomIndustry(): string {
-  const industries = ['Technology', 'Finance', 'Healthcare', 'Manufacturing', 'Retail', 'Consulting'];
-  return industries[Math.floor(Math.random() * industries.length)];
-}
+    for (let i = 1; i <= 20; i++) {
+      rows.push({
+        id: `row-${i}`,
+        sku: `SKU-${String(i).padStart(5, '0')}`,
+        item: items[Math.floor(Math.random() * items.length)],
+        stock: Math.floor(Math.random() * 500),
+        price: Math.floor(Math.random() * 200) + 20,
+        category: categories[Math.floor(Math.random() * categories.length)],
+        supplier: suppliers[Math.floor(Math.random() * suppliers.length)],
+      });
+    }
+  } else if (fileName.includes('financial')) {
+    columns = ['id', 'transaction', 'amount', 'type', 'account', 'date', 'balance'];
+    const types = ['Debit', 'Credit', 'Transfer'];
+    const accounts = ['Checking', 'Savings', 'Business', 'Investment'];
+    let balance = 50000;
 
-function getRandomLocation(): string {
-  const locations = ['San Francisco, CA', 'New York, NY', 'Austin, TX', 'Seattle, WA', 'Boston, MA', 'Chicago, IL'];
-  return locations[Math.floor(Math.random() * locations.length)];
-}
+    for (let i = 1; i <= 35; i++) {
+      const amount = Math.floor(Math.random() * 5000) + 100;
+      const type = types[Math.floor(Math.random() * types.length)];
+      balance += type === 'Credit' ? amount : -amount;
 
-function getRandomCEOName(): string {
-  const firstNames = ['John', 'Sarah', 'Michael', 'Emily', 'David', 'Jennifer', 'Robert', 'Lisa'];
-  const lastNames = ['Smith', 'Johnson', 'Williams', 'Brown', 'Davis', 'Miller', 'Wilson', 'Moore'];
-  return `${firstNames[Math.floor(Math.random() * firstNames.length)]} ${lastNames[Math.floor(Math.random() * lastNames.length)]}`;
+      rows.push({
+        id: `row-${i}`,
+        transaction: `TXN-${String(i).padStart(6, '0')}`,
+        amount,
+        type,
+        account: accounts[Math.floor(Math.random() * accounts.length)],
+        date: new Date(Date.now() - Math.random() * 5184000000).toISOString().split('T')[0],
+        balance,
+      });
+    }
+  } else {
+    columns = ['id', 'name', 'value', 'category', 'date', 'status'];
+    for (let i = 1; i <= 15; i++) {
+      rows.push({
+        id: `row-${i}`,
+        name: `Item ${i}`,
+        value: Math.floor(Math.random() * 1000),
+        category: ['A', 'B', 'C'][Math.floor(Math.random() * 3)],
+        date: new Date(Date.now() - Math.random() * 10000000000).toISOString().split('T')[0],
+        status: ['Active', 'Pending', 'Completed'][Math.floor(Math.random() * 3)],
+      });
+    }
+  }
+
+  mockData.set(fileId, { columns, rows });
 }
 
 export function getMockQAResponse(question: string): QAResponse {

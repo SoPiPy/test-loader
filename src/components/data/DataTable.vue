@@ -1,72 +1,21 @@
 <template>
   <div class="data-editor-layout">
-    <div class="jobs-sidebar">
-      <v-list density="compact" class="pa-0">
-        <v-list-subheader class="text-uppercase font-weight-bold">
-          <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
-          Jobs ({{ completedJobs.length }})
-        </v-list-subheader>
-
-        <v-divider></v-divider>
-
-        <div v-if="completedJobs.length === 0" class="pa-4 text-center text-grey">
-          <v-icon size="48" color="grey-lighten-1">mdi-briefcase-outline</v-icon>
-          <p class="text-caption mt-2">No jobs completed yet</p>
-        </div>
-
-        <v-list-item
-          v-for="job in completedJobs"
-          :key="job.id"
-          :active="selectedJobId === job.id"
-          @click="selectJob(job.id)"
-          class="job-list-item"
-        >
-          <template v-slot:prepend>
-            <v-icon :color="selectedJobId === job.id ? 'primary' : 'success'">
-              mdi-check-circle
-            </v-icon>
-          </template>
-
-          <v-list-item-title class="text-body-2">
-            Job #{{ job.id.slice(-6) }}
-          </v-list-item-title>
-
-          <v-list-item-subtitle class="text-caption">
-            {{ job.message || 'Completed' }}
-          </v-list-item-subtitle>
-
-          <template v-slot:append>
-            <v-badge
-              v-if="hasJobModifications(job.id)"
-              color="warning"
-              dot
-              inline
-            ></v-badge>
-          </template>
-        </v-list-item>
-      </v-list>
-    </div>
-
     <div class="files-sidebar">
       <v-list density="compact" class="pa-0">
         <v-list-subheader class="text-uppercase font-weight-bold">
           <v-icon size="small" class="mr-2">mdi-file-multiple</v-icon>
-          Files ({{ filesList.length }})
+          Files ({{ completedFiles.length }})
         </v-list-subheader>
 
         <v-divider></v-divider>
 
-        <div v-if="loading" class="pa-4 text-center">
-          <v-progress-circular indeterminate color="primary" size="32"></v-progress-circular>
-        </div>
-
-        <div v-else-if="filesList.length === 0" class="pa-4 text-center text-grey">
+        <div v-if="completedFiles.length === 0" class="pa-4 text-center text-grey">
           <v-icon size="48" color="grey-lighten-1">mdi-file-outline</v-icon>
-          <p class="text-caption mt-2">No files found</p>
+          <p class="text-caption mt-2">No files processed yet</p>
         </div>
 
         <v-list-item
-          v-for="(file, index) in filesList"
+          v-for="file in completedFiles"
           :key="file.id"
           :active="selectedFileId === file.id"
           @click="selectFile(file.id)"
@@ -79,16 +28,16 @@
           </template>
 
           <v-list-item-title class="text-body-2">
-            File #{{ index + 1 }}
+            {{ file.name }}
           </v-list-item-title>
 
           <v-list-item-subtitle class="text-caption">
-            {{ getFilePreview(file) }}
+            {{ formatFileSize(file.size) }}
           </v-list-item-subtitle>
 
           <template v-slot:append>
             <v-badge
-              v-if="isRowModified(file.id)"
+              v-if="hasFileModifications(file.id)"
               color="warning"
               dot
               inline
@@ -102,8 +51,8 @@
       <v-card class="h-100">
         <v-card-title class="d-flex align-center justify-space-between sticky-header">
           <div class="d-flex align-center">
-            <v-icon class="mr-2">mdi-form-textbox</v-icon>
-            <span v-if="selectedJobName">{{ selectedJobName }}</span>
+            <v-icon class="mr-2">mdi-table-edit</v-icon>
+            <span v-if="selectedFileName">{{ selectedFileName }}</span>
             <span v-else class="text-grey">Data Editor</span>
           </div>
           <div class="d-flex align-center gap-2">
@@ -128,56 +77,47 @@
 
         <v-divider></v-divider>
 
-        <v-card-text class="form-container">
+        <v-card-text class="table-container">
           <div v-if="loading" class="text-center py-12">
             <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
             <p class="mt-4 text-grey">Loading data...</p>
           </div>
 
-          <div v-else-if="!selectedJobId" class="text-center py-12 text-grey">
-            <v-icon size="80" color="grey-lighten-1">mdi-briefcase</v-icon>
-            <p class="mt-4 text-h6">Select a job from the sidebar</p>
-            <p class="text-body-2">Choose a job to view and edit its files</p>
+          <div v-else-if="!selectedFileId" class="text-center py-12 text-grey">
+            <v-icon size="80" color="grey-lighten-1">mdi-table</v-icon>
+            <p class="mt-4 text-h6">Select a file from the sidebar</p>
+            <p class="text-body-2">Choose a file to view and edit its data</p>
           </div>
 
-          <div v-else-if="!selectedFileId && filesList.length > 0" class="text-center py-12 text-grey">
-            <v-icon size="80" color="grey-lighten-1">mdi-file-document</v-icon>
-            <p class="mt-4 text-h6">Select a file</p>
-            <p class="text-body-2">Choose a file from the middle sidebar to edit</p>
-          </div>
-
-          <div v-else-if="selectedFile" class="file-form">
-            <v-alert
-              v-if="isRowModified(selectedFile!.id)"
-              type="warning"
-              variant="tonal"
-              density="compact"
-              class="mb-4"
+          <div v-else-if="tableData">
+            <v-data-table
+              :headers="headers"
+              :items="tableData.rows"
+              :items-per-page="15"
+              class="elevation-0"
+              density="comfortable"
             >
-              This file has unsaved changes
-            </v-alert>
-
-            <v-row>
-              <v-col
-                v-for="column in editableColumns"
-                :key="column"
-                cols="12"
-                md="6"
-              >
+              <template v-for="column in editableColumns" v-slot:[`item.${column}`]="{ item }">
                 <v-text-field
-                  :label="formatLabel(column)"
-                  :model-value="selectedFile![column]"
-                  @update:model-value="(value) => updateCell(selectedFile!.id, column, value)"
-                  variant="outlined"
-                  density="comfortable"
-                  :class="{ 'modified-field': isRowModified(selectedFile!.id) }"
+                  :key="column"
+                  :model-value="item[column]"
+                  @update:model-value="(value) => updateCell(item.id, column, value)"
+                  density="compact"
+                  hide-details
+                  :class="{ 'bg-yellow-lighten-4': isRowModified(item.id) }"
+                ></v-text-field>
+              </template>
+
+              <template v-slot:item.actions="{ item }">
+                <v-icon
+                  v-if="isRowModified(item.id)"
+                  color="warning"
+                  size="small"
                 >
-                  <template v-slot:prepend-inner>
-                    <v-icon size="small" color="grey">mdi-text</v-icon>
-                  </template>
-                </v-text-field>
-              </v-col>
-            </v-row>
+                  mdi-pencil
+                </v-icon>
+              </template>
+            </v-data-table>
           </div>
         </v-card-text>
       </v-card>
@@ -186,50 +126,48 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { storeToRefs } from 'pinia';
-import { useJobsStore } from '@/stores/jobs';
+import { ref, computed } from 'vue';
+import { useFilesStore } from '@/stores/files';
 import { useDataStore } from '@/stores/data';
-import { useSelectedJobStore } from '@/stores/selectedJob';
 
-const jobsStore = useJobsStore();
+const filesStore = useFilesStore();
 const dataStore = useDataStore();
-const selectedJobStore = useSelectedJobStore();
 
-const { selectedJobId } = storeToRefs(selectedJobStore);
 const selectedFileId = ref<string>('');
+
+const selectedFileName = computed(() => {
+  if (!selectedFileId.value) return '';
+  const file = filesStore.getFile(selectedFileId.value);
+  return file?.name || '';
+});
 const loading = ref(false);
 const saving = ref(false);
 
-watch(selectedJobId, (newJobId) => {
-  if (newJobId) {
-    selectedFileId.value = '';
-    loadJobData(newJobId);
-  }
-});
-
-const selectedJobName = computed(() => {
-  if (!selectedJobId.value) return '';
-  return `Job #${selectedJobId.value.slice(-6)}`;
-});
-
-const completedJobs = computed(() => {
-  return Array.from(jobsStore.jobs.values()).filter(j => j.status === 'completed');
-});
+const completedFiles = computed(() =>
+  filesStore.getAllFiles().filter((f) => f.status === 'completed')
+);
 
 const tableData = computed(() => {
-  if (!selectedJobId.value) return null;
-  return dataStore.getTableData(selectedJobId.value);
+  if (!selectedFileId.value) return null;
+  return dataStore.getTableData(selectedFileId.value);
 });
 
-const filesList = computed(() => {
+const headers = computed(() => {
   if (!tableData.value) return [];
-  return tableData.value.rows;
-});
 
-const selectedFile = computed(() => {
-  if (!selectedFileId.value || !tableData.value) return null;
-  return tableData.value.rows.find(row => row.id === selectedFileId.value);
+  const columns = tableData.value.columns.map((col) => ({
+    title: col.charAt(0).toUpperCase() + col.slice(1),
+    key: col,
+    sortable: true,
+  }));
+
+  columns.push({
+    title: 'Actions',
+    key: 'actions',
+    sortable: false,
+  });
+
+  return columns;
 });
 
 const editableColumns = computed(() => {
@@ -247,12 +185,12 @@ const modifiedCount = computed(() => {
   return tableData.value.modifiedRows.size;
 });
 
-async function loadJobData(jobId: string) {
-  if (!jobId) return;
+async function loadFileData(fileId: string) {
+  if (!fileId) return;
 
   loading.value = true;
   try {
-    await dataStore.loadData(jobId);
+    await dataStore.loadData(fileId);
   } catch (error) {
     console.error('Failed to load data:', error);
   } finally {
@@ -261,48 +199,38 @@ async function loadJobData(jobId: string) {
 }
 
 function updateCell(rowId: string, column: string, value: any) {
-  if (!selectedJobId.value) return;
-  dataStore.updateRow(selectedJobId.value, rowId, { [column]: value });
+  if (!selectedFileId.value) return;
+  dataStore.updateRow(selectedFileId.value, rowId, { [column]: value });
 }
 
 function isRowModified(rowId: string): boolean {
-  if (!selectedJobId.value) return false;
-  return dataStore.isRowModified(selectedJobId.value, rowId);
-}
-
-function selectJob(jobId: string) {
-  selectedJobStore.setSelectedJob(jobId);
+  if (!selectedFileId.value) return false;
+  return dataStore.isRowModified(selectedFileId.value, rowId);
 }
 
 function selectFile(fileId: string) {
+  if (fileId === selectedFileId.value) return;
   selectedFileId.value = fileId;
+  loadFileData(fileId);
 }
 
-function formatLabel(column: string): string {
-  return column
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+function formatFileSize(bytes: number): string {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
 }
 
-function getFilePreview(file: any): string {
-  const firstCol = editableColumns.value[0];
-  if (!firstCol) return 'No data';
-  const value = file[firstCol];
-  return value ? String(value).substring(0, 30) : 'Empty';
-}
-
-function hasJobModifications(jobId: string): boolean {
-  const data = dataStore.getTableData(jobId);
+function hasFileModifications(fileId: string): boolean {
+  const data = dataStore.getTableData(fileId);
   return data ? data.modifiedRows.size > 0 : false;
 }
 
 async function saveChanges() {
-  if (!selectedJobId.value) return;
+  if (!selectedFileId.value) return;
 
   saving.value = true;
   try {
-    await dataStore.saveChanges(selectedJobId.value);
+    await dataStore.saveChanges(selectedFileId.value);
   } catch (error) {
     console.error('Failed to save changes:', error);
   } finally {
@@ -320,53 +248,44 @@ async function saveChanges() {
   overflow: hidden;
 }
 
-.jobs-sidebar,
 .files-sidebar {
-  width: 220px;
+  width: 280px;
   height: 100%;
   overflow-y: auto;
   backdrop-filter: blur(20px);
   border-radius: 20px;
   padding: 1rem;
-  flex-shrink: 0;
 }
 
-.v-theme--light .jobs-sidebar,
 .v-theme--light .files-sidebar {
   background: rgba(255, 255, 255, 0.95);
   border: 1px solid rgba(255, 255, 255, 0.3);
   box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
 }
 
-.v-theme--dark .jobs-sidebar,
 .v-theme--dark .files-sidebar {
   background: rgba(30, 41, 59, 0.8);
   border: 1px solid rgba(255, 255, 255, 0.1);
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 }
 
-.jobs-sidebar::-webkit-scrollbar,
 .files-sidebar::-webkit-scrollbar {
   width: 6px;
 }
 
-.jobs-sidebar::-webkit-scrollbar-track,
 .files-sidebar::-webkit-scrollbar-track {
   background: transparent;
 }
 
-.jobs-sidebar::-webkit-scrollbar-thumb,
 .files-sidebar::-webkit-scrollbar-thumb {
   background: rgba(102, 126, 234, 0.3);
   border-radius: 10px;
 }
 
-.jobs-sidebar::-webkit-scrollbar-thumb:hover,
 .files-sidebar::-webkit-scrollbar-thumb:hover {
   background: rgba(102, 126, 234, 0.5);
 }
 
-.job-list-item,
 .file-list-item {
   border-left: 3px solid transparent;
   border-radius: 12px;
@@ -374,12 +293,10 @@ async function saveChanges() {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-.job-list-item:hover,
 .file-list-item:hover {
   background-color: rgba(102, 126, 234, 0.05);
 }
 
-.job-list-item.v-list-item--active,
 .file-list-item.v-list-item--active {
   border-left-color: #667eea;
   background: linear-gradient(90deg, rgba(102, 126, 234, 0.1) 0%, rgba(102, 126, 234, 0.05) 100%);
@@ -408,38 +325,29 @@ async function saveChanges() {
   background: rgba(15, 23, 42, 0.98);
 }
 
-.form-container {
+.table-container {
   overflow: auto;
   height: calc(100% - 80px);
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
-.form-container::-webkit-scrollbar {
+.table-container::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.form-container::-webkit-scrollbar-track {
+.table-container::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
-.form-container::-webkit-scrollbar-thumb {
+.table-container::-webkit-scrollbar-thumb {
   background: rgba(102, 126, 234, 0.5);
   border-radius: 10px;
 }
 
-.form-container::-webkit-scrollbar-thumb:hover {
+.table-container::-webkit-scrollbar-thumb:hover {
   background: rgba(102, 126, 234, 0.8);
-}
-
-.file-form {
-  max-width: 1200px;
-  margin: 0 auto;
-}
-
-.modified-field :deep(.v-field) {
-  background-color: rgba(255, 193, 7, 0.1);
 }
 
 .h-100 {
@@ -466,10 +374,9 @@ async function saveChanges() {
     height: auto;
   }
 
-  .jobs-sidebar,
   .files-sidebar {
     width: 100%;
-    max-height: 250px;
+    max-height: 300px;
   }
 
   .main-content {

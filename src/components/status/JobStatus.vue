@@ -1,52 +1,38 @@
 <template>
   <div class="status-layout">
-    <div class="jobs-sidebar">
-      <v-list density="compact" class="pa-0">
-        <v-list-subheader class="text-uppercase font-weight-bold">
-          <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
-          All Jobs ({{ allJobs.length }})
-        </v-list-subheader>
+    <div class="sidebar-container glass-card">
+      <div class="sidebar-header">
+        <v-icon size="24" color="primary">mdi-format-list-bulleted</v-icon>
+        <h3 class="sidebar-title">All Jobs</h3>
+      </div>
 
-        <v-divider></v-divider>
-
-        <div v-if="allJobs.length === 0" class="pa-4 text-center text-grey">
-          <v-icon size="48" color="grey-lighten-1">mdi-briefcase-outline</v-icon>
-          <p class="text-caption mt-2">No jobs yet</p>
+      <div class="jobs-sidebar-list">
+        <div
+          v-if="allFiles.length === 0"
+          class="sidebar-empty"
+        >
+          <v-icon size="40" color="grey-lighten-1">mdi-inbox</v-icon>
+          <p>No jobs yet</p>
         </div>
 
-        <v-list-item
-          v-for="job in allJobs"
-          :key="job.id"
-          :active="selectedJobId === job.id"
-          @click="selectJob(job.id)"
-          class="job-list-item"
+        <div
+          v-for="file in allFiles"
+          :key="file.id"
+          class="sidebar-job-item"
+          :class="{ selected: selectedJobId === file.id }"
+          @click="selectJob(file.id)"
         >
-          <template v-slot:prepend>
-            <v-icon :color="getJobIconColor(job.status)">
-              {{ getStatusIcon(job.status) }}
-            </v-icon>
-          </template>
-
-          <v-list-item-title class="text-body-2">
-            Job #{{ job.id.slice(-6) }}
-          </v-list-item-title>
-
-          <v-list-item-subtitle class="text-caption">
-            {{ job.status.toUpperCase() }}
-          </v-list-item-subtitle>
-
-          <template v-slot:append>
-            <v-chip
-              v-if="job.status === 'processing'"
-              size="x-small"
-              color="orange"
-              variant="flat"
-            >
-              {{ job.progress }}%
+          <div class="sidebar-job-icon" :style="{ background: getStatusGradient(file.status) }">
+            <v-icon color="white" size="18">{{ getStatusIcon(file.status) }}</v-icon>
+          </div>
+          <div class="sidebar-job-info">
+            <p class="sidebar-job-name">{{ truncateFileName(file.name) }}</p>
+            <v-chip size="x-small" :color="getStatusColor(file.status)" variant="tonal">
+              {{ file.status.toUpperCase() }}
             </v-chip>
-          </template>
-        </v-list-item>
-      </v-list>
+          </div>
+        </div>
+      </div>
     </div>
 
     <div class="status-container glass-card">
@@ -176,46 +162,22 @@
         </div>
       </div>
     </div>
-    </div>
+  </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useFilesStore } from '@/stores/files';
 import { useJobsStore } from '@/stores/jobs';
-import type { Job } from '@/types';
 
 const filesStore = useFilesStore();
 const jobsStore = useJobsStore();
 
-const selectedJobId = ref<string | null>(null);
 const expandedJobs = ref<string[]>([]);
+const selectedJobId = ref<string | null>(null);
 
-const allJobs = computed(() => {
-  return Array.from(jobsStore.jobs.values()).sort((a, b) =>
-    new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-  );
-});
-
-function selectJob(jobId: string) {
-  selectedJobId.value = jobId;
-  const file = filesStore.getAllFiles().find(f => f.jobId === jobId);
-  if (file && !expandedJobs.value.includes(file.id)) {
-    expandedJobs.value.push(file.id);
-  }
-}
-
-function getJobIconColor(status: string): string {
-  const colors: Record<string, string> = {
-    uploading: 'blue',
-    uploaded: 'cyan',
-    processing: 'orange',
-    completed: 'green',
-    failed: 'red',
-  };
-  return colors[status] || 'grey';
-}
+const allFiles = computed(() => filesStore.getAllFiles());
 
 const processingFiles = computed(() =>
   filesStore.getAllFiles().filter(
@@ -292,6 +254,23 @@ function toggleJobDetails(fileId: string) {
     expandedJobs.value.push(fileId);
   }
 }
+
+function selectJob(jobId: string) {
+  selectedJobId.value = jobId;
+}
+
+function truncateFileName(name: string): string {
+  if (name.length > 25) {
+    return name.slice(0, 22) + '...';
+  }
+  return name;
+}
+
+onMounted(() => {
+  if (allFiles.value.length > 0) {
+    selectedJobId.value = allFiles.value[0].id;
+  }
+});
 </script>
 
 <style scoped>
@@ -300,61 +279,168 @@ function toggleJobDetails(fileId: string) {
   gap: 1.5rem;
   height: calc(100vh - 280px);
   max-height: calc(100vh - 280px);
+}
+
+.sidebar-container {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 1.5rem;
   overflow: hidden;
 }
 
-.jobs-sidebar {
-  width: 280px;
-  flex-shrink: 0;
-  background: white;
-  border-radius: 16px;
-  border: 2px solid #e2e8f0;
+.sidebar-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e2e8f0;
+}
+
+.v-theme--dark .sidebar-header {
+  border-bottom-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  margin: 0;
+}
+
+.v-theme--light .sidebar-title {
+  color: #334155;
+}
+
+.v-theme--dark .sidebar-title {
+  color: #e2e8f0;
+}
+
+.jobs-sidebar-list {
+  flex: 1;
   overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
 }
 
-.v-theme--dark .jobs-sidebar {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.jobs-sidebar::-webkit-scrollbar {
+.jobs-sidebar-list::-webkit-scrollbar {
   width: 6px;
 }
 
-.jobs-sidebar::-webkit-scrollbar-track {
+.jobs-sidebar-list::-webkit-scrollbar-track {
   background: rgba(0, 0, 0, 0.05);
   border-radius: 10px;
 }
 
-.jobs-sidebar::-webkit-scrollbar-thumb {
+.jobs-sidebar-list::-webkit-scrollbar-thumb {
   background: rgba(102, 126, 234, 0.5);
   border-radius: 10px;
 }
 
-.jobs-sidebar::-webkit-scrollbar-thumb:hover {
+.jobs-sidebar-list::-webkit-scrollbar-thumb:hover {
   background: rgba(102, 126, 234, 0.8);
 }
 
-.job-list-item {
-  border-bottom: 1px solid #e2e8f0;
-  transition: background-color 0.2s ease;
+.sidebar-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+  color: #64748b;
+  gap: 1rem;
 }
 
-.v-theme--dark .job-list-item {
-  border-bottom-color: rgba(255, 255, 255, 0.05);
+.sidebar-empty p {
+  margin: 0;
+  font-size: 0.875rem;
 }
 
-.job-list-item:hover {
-  background-color: rgba(102, 126, 234, 0.05);
+.sidebar-job-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  border: 2px solid transparent;
 }
 
-.job-list-item:last-child {
-  border-bottom: none;
+.v-theme--light .sidebar-job-item {
+  background: #f8fafc;
+}
+
+.v-theme--dark .sidebar-job-item {
+  background: rgba(30, 41, 59, 0.4);
+}
+
+.v-theme--light .sidebar-job-item:hover {
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.v-theme--dark .sidebar-job-item:hover {
+  background: rgba(30, 41, 59, 0.6);
+  border-color: rgba(255, 255, 255, 0.1);
+}
+
+.sidebar-job-item.selected {
+  border-color: #667eea;
+}
+
+.v-theme--light .sidebar-job-item.selected {
+  background: rgba(102, 126, 234, 0.08);
+}
+
+.v-theme--dark .sidebar-job-item.selected {
+  background: rgba(102, 126, 234, 0.15);
+}
+
+.sidebar-job-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.sidebar-job-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+}
+
+.sidebar-job-name {
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.v-theme--light .sidebar-job-name {
+  color: #334155;
+}
+
+.v-theme--dark .sidebar-job-name {
+  color: #e2e8f0;
 }
 
 .status-container {
   flex: 1;
+  min-width: 0;
   padding: 2rem;
+  height: calc(100vh - 280px);
+  max-height: calc(100vh - 280px);
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -670,15 +756,19 @@ function toggleJobDetails(fileId: string) {
 @media (max-width: 768px) {
   .status-layout {
     flex-direction: column;
+    height: auto;
+    max-height: none;
   }
 
-  .jobs-sidebar {
+  .sidebar-container {
     width: 100%;
-    max-height: 200px;
+    max-height: 300px;
   }
 
   .status-container {
     padding: 1.5rem;
+    height: auto;
+    max-height: none;
   }
 
   .section-title {
