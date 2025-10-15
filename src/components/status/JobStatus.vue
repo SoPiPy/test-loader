@@ -55,9 +55,11 @@
           <div class="header-icon-wrapper floating-element">
             <v-icon size="32" color="primary">mdi-progress-check</v-icon>
           </div>
-          <h2 class="section-title gradient-text">Processing Status</h2>
+          <div class="header-text">
+            <h2 class="section-title gradient-text">Processing Status</h2>
+            <p class="section-subtitle">Monitor your file processing jobs in real-time</p>
+          </div>
         </div>
-        <p class="section-subtitle">Monitor your file processing jobs in real-time</p>
       </div>
 
       <div class="status-content">
@@ -402,6 +404,13 @@ function toggleJobDetails(fileId: string) {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 64px;
 }
 
 .section-title {

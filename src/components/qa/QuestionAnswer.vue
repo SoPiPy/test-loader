@@ -5,9 +5,11 @@
         <div class="header-icon-wrapper floating-element">
           <v-icon size="32" color="primary">mdi-robot-excited</v-icon>
         </div>
-        <h2 class="section-title gradient-text">AI Assistant</h2>
+        <div class="header-text">
+          <h2 class="section-title gradient-text">AI Assistant</h2>
+          <p class="section-subtitle">Ask questions about your data and get instant insights</p>
+        </div>
       </div>
-      <p class="section-subtitle">Ask questions about your data and get instant insights</p>
     </div>
 
     <div class="qa-content">
@@ -230,6 +232,13 @@ function formatTime(date: Date): string {
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+}
+
+.header-text {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  min-height: 64px;
 }
 
 .section-title {
