@@ -100,29 +100,38 @@
 
     <div class="main-content">
       <v-card class="h-100">
-        <v-card-title class="d-flex align-center justify-space-between sticky-header">
-          <div class="d-flex align-center">
-            <v-icon class="mr-2">mdi-form-textbox</v-icon>
-            <span v-if="selectedJobName">{{ selectedJobName }}</span>
-            <span v-else class="text-grey">Data Editor</span>
-          </div>
-          <div class="d-flex align-center gap-2">
-            <v-chip
-              v-if="hasModifications"
-              color="warning"
-              size="small"
-            >
-              {{ modifiedCount }} modified
-            </v-chip>
-            <v-btn
-              color="primary"
-              :disabled="!hasModifications || saving"
-              :loading="saving"
-              @click="saveChanges"
-            >
-              <v-icon left>mdi-content-save</v-icon>
-              Save Changes
-            </v-btn>
+        <v-card-title class="sticky-header">
+          <div class="header-row">
+            <div class="title-with-icon">
+              <div class="header-icon-wrapper">
+                <v-icon size="28" color="primary">mdi-table-edit</v-icon>
+              </div>
+              <div class="header-text">
+                <h3 class="card-title">
+                  <span v-if="selectedJobName">{{ selectedJobName }}</span>
+                  <span v-else>Data Editor</span>
+                </h3>
+                <p class="card-subtitle">View and edit your processed data</p>
+              </div>
+            </div>
+            <div class="header-actions">
+              <v-chip
+                v-if="hasModifications"
+                color="warning"
+                size="small"
+              >
+                {{ modifiedCount }} modified
+              </v-chip>
+              <v-btn
+                color="primary"
+                :disabled="!hasModifications || saving"
+                :loading="saving"
+                @click="saveChanges"
+              >
+                <v-icon>mdi-content-save</v-icon>
+                <span class="ml-2">Save</span>
+              </v-btn>
+            </div>
           </div>
         </v-card-title>
 
@@ -398,6 +407,7 @@ async function saveChanges() {
   position: sticky;
   top: 0;
   z-index: 10;
+  padding: 1.5rem 1.5rem 1rem 1.5rem !important;
 }
 
 .v-theme--light .sticky-header {
@@ -406,6 +416,61 @@ async function saveChanges() {
 
 .v-theme--dark .sticky-header {
   background: rgba(15, 23, 42, 0.98);
+}
+
+.header-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  gap: 1rem;
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  flex: 1;
+  min-width: 0;
+}
+
+.header-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .form-container {

@@ -41,9 +41,14 @@
     <div class="main-content">
       <v-card class="h-100">
         <v-card-title class="sticky-header">
-          <div class="d-flex align-center">
-            <v-icon class="mr-2">mdi-presentation</v-icon>
-            <span>Generate Presentation</span>
+          <div class="title-with-icon">
+            <div class="header-icon-wrapper">
+              <v-icon size="28" color="primary">mdi-presentation</v-icon>
+            </div>
+            <div class="header-text">
+              <h3 class="card-title">Generate Presentation</h3>
+              <p class="card-subtitle">Create stunning presentations from your data</p>
+            </div>
           </div>
         </v-card-title>
 
@@ -301,6 +306,7 @@ async function generatePresentation() {
   position: sticky;
   top: 0;
   z-index: 10;
+  padding: 1.5rem 1.5rem 1rem 1.5rem !important;
 }
 
 .v-theme--light .sticky-header {
@@ -309,6 +315,44 @@ async function generatePresentation() {
 
 .v-theme--dark .sticky-header {
   background: rgba(15, 23, 42, 0.98);
+}
+
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+}
+
+.header-icon-wrapper {
+  width: 56px;
+  height: 56px;
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.header-text {
+  flex: 1;
+}
+
+.card-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.card-subtitle {
+  font-size: 0.875rem;
+  color: #64748b;
+  margin: 0;
 }
 
 .content-scroll {

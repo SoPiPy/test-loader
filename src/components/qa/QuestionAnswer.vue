@@ -1,10 +1,12 @@
 <template>
   <div class="qa-container glass-card">
     <div class="section-header">
-      <div class="header-icon-wrapper floating-element">
-        <v-icon size="32" color="primary">mdi-robot-excited</v-icon>
+      <div class="title-with-icon">
+        <div class="header-icon-wrapper floating-element">
+          <v-icon size="32" color="primary">mdi-robot-excited</v-icon>
+        </div>
+        <h2 class="section-title gradient-text">AI Assistant</h2>
       </div>
-      <h2 class="section-title gradient-text">AI Assistant</h2>
       <p class="section-subtitle">Ask questions about your data and get instant insights</p>
     </div>
 
@@ -212,10 +214,17 @@ function formatTime(date: Date): string {
   flex-shrink: 0;
 }
 
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 .header-icon-wrapper {
   width: 64px;
   height: 64px;
-  margin: 0 auto 1rem;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
   border-radius: 16px;
   display: flex;
@@ -226,7 +235,7 @@ function formatTime(date: Date): string {
 .section-title {
   font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
 }
 
 .section-subtitle {

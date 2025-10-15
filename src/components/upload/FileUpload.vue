@@ -2,10 +2,12 @@
   <div class="upload-container">
     <div class="upload-section glass-card">
       <div class="section-header">
-        <div class="header-icon-wrapper floating-element">
-          <v-icon size="32" color="primary">mdi-cloud-upload</v-icon>
+        <div class="title-with-icon">
+          <div class="header-icon-wrapper floating-element">
+            <v-icon size="32" color="primary">mdi-cloud-upload</v-icon>
+          </div>
+          <h2 class="section-title gradient-text">Upload Your Files</h2>
         </div>
-        <h2 class="section-title gradient-text">Upload Your Files</h2>
         <p class="section-subtitle">Drag and drop files here or click to browse</p>
       </div>
 
@@ -254,10 +256,17 @@ function formatSize(bytes: number): string {
   margin-bottom: 2rem;
 }
 
+.title-with-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
 .header-icon-wrapper {
   width: 64px;
   height: 64px;
-  margin: 0 auto 1rem;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
   border-radius: 16px;
   display: flex;
@@ -268,7 +277,7 @@ function formatSize(bytes: number): string {
 .section-title {
   font-size: 2rem;
   font-weight: 700;
-  margin: 0 0 0.5rem 0;
+  margin: 0;
 }
 
 .section-subtitle {
