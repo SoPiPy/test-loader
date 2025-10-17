@@ -282,6 +282,25 @@ function formatSize(bytes: number): string {
   transform: scale(1.02);
 }
 
+.file-upload-area :deep(.v-file-upload__files) {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.file-upload-area :deep(.v-file-upload-item) {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: white;
+  transition: all 0.2s ease;
+}
+
+.file-upload-area :deep(.v-file-upload-item:hover) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
 .upload-empty-state {
   display: flex;
   flex-direction: column;
