@@ -19,17 +19,21 @@
         chips
         show-size
         counter
-        accept=".csv,.xlsx,.xls,.json"
-        label="Select files to upload"
-        prepend-icon="mdi-paperclip"
-        variant="outlined"
-        class="file-input"
+        accept=".pdf"
+        label="Drop PDF files here or click to browse"
+        prepend-icon="mdi-file-pdf-box"
+        variant="solo-filled"
+        class="file-input-drag"
         :loading="uploading"
+        @dragover="isDragging = true"
+        @dragleave="isDragging = false"
+        @drop="isDragging = false"
+        :class="{ 'dragging': isDragging }"
       >
         <template v-slot:selection="{ fileNames }">
           <template v-for="(fileName, index) in fileNames" :key="fileName">
             <v-chip
-              v-if="index < 3"
+              v-if="index < 2"
               color="primary"
               size="small"
               label
@@ -38,10 +42,10 @@
               {{ fileName }}
             </v-chip>
             <span
-              v-else-if="index === 3"
+              v-else-if="index === 2"
               class="text-overline text-grey-darken-1 mx-2"
             >
-              +{{ fileNames.length - 3 }} File(s)
+              +{{ fileNames.length - 2 }} more
             </span>
           </template>
         </template>
@@ -49,7 +53,7 @@
 
       <div class="file-types-hint">
         <v-chip size="small" variant="text" prepend-icon="mdi-information-outline">
-          Supported formats: CSV, XLSX, JSON
+          Supported format: PDF only
         </v-chip>
       </div>
 
@@ -78,7 +82,7 @@
 
       <div class="files-grid">
         <div
-          v-for="file in filesStore.getAllFiles()"
+          v-for="file in paginatedFiles"
           :key="file.id"
           class="file-card"
           :class="`status-${file.status}`"
@@ -119,12 +123,21 @@
           ></div>
         </div>
       </div>
+
+      <div v-if="totalPages > 1" class="pagination-wrapper">
+        <v-pagination
+          v-model="page"
+          :length="totalPages"
+          :total-visible="5"
+          rounded="circle"
+        ></v-pagination>
+      </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
+import { ref, computed } from 'vue';
 import { useFilesStore } from '@/stores/files';
 import { useJobsStore } from '@/stores/jobs';
 
@@ -133,6 +146,20 @@ const jobsStore = useJobsStore();
 
 const selectedFiles = ref<File[]>([]);
 const uploading = ref(false);
+const isDragging = ref(false);
+const page = ref(1);
+const itemsPerPage = ref(6);
+
+const paginatedFiles = computed(() => {
+  const allFiles = filesStore.getAllFiles();
+  const start = (page.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return allFiles.slice(start, end);
+});
+
+const totalPages = computed(() => {
+  return Math.ceil(filesStore.getAllFiles().length / itemsPerPage.value);
+});
 
 async function uploadFiles() {
   if (selectedFiles.value.length === 0) return;
@@ -260,8 +287,32 @@ function formatSize(bytes: number): string {
   line-height: 1.4;
 }
 
-.file-input {
+.file-input-drag {
   margin-bottom: 1rem;
+  transition: all 0.3s ease;
+}
+
+.file-input-drag.dragging {
+  transform: scale(1.02);
+  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
+}
+
+.file-input-drag :deep(.v-field) {
+  min-height: 120px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 16px;
+  background: rgba(248, 250, 252, 0.5);
+  transition: all 0.3s ease;
+}
+
+.file-input-drag:hover :deep(.v-field) {
+  border-color: #cbd5e1;
+  background: rgba(248, 250, 252, 0.8);
+}
+
+.file-input-drag.dragging :deep(.v-field) {
+  border-color: #667eea;
+  background: rgba(102, 126, 234, 0.05);
 }
 
 .file-types-hint {
@@ -283,7 +334,6 @@ function formatSize(bytes: number): string {
 .files-list-section {
   padding: 2rem;
   flex-shrink: 0;
-  overflow: hidden;
 }
 
 .list-header {
@@ -311,26 +361,14 @@ function formatSize(bytes: number): string {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
-  max-height: 400px;
-  overflow-y: auto;
+  margin-bottom: 1.5rem;
 }
 
-.files-grid::-webkit-scrollbar {
-  width: 8px;
-}
-
-.files-grid::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.05);
-  border-radius: 10px;
-}
-
-.files-grid::-webkit-scrollbar-thumb {
-  background: rgba(102, 126, 234, 0.5);
-  border-radius: 10px;
-}
-
-.files-grid::-webkit-scrollbar-thumb:hover {
-  background: rgba(102, 126, 234, 0.8);
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  padding-top: 1rem;
+  border-top: 1px solid #e2e8f0;
 }
 
 .file-card {
