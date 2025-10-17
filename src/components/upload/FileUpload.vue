@@ -13,16 +13,28 @@
         </div>
       </div>
 
-      <v-file-upload
-        v-model="selectedFiles"
-        accept=".pdf"
-        multiple
-        show-size
-        chips
-        color="primary"
-        :loading="uploading"
-        class="file-upload-area"
-      ></v-file-upload>
+      <div class="collapsible-section">
+        <div class="collapse-header" @click="showSelectedFiles = !showSelectedFiles">
+          <div class="collapse-title">
+            <v-icon>{{ showSelectedFiles ? 'mdi-chevron-down' : 'mdi-chevron-right' }}</v-icon>
+            <span>Selected Files ({{ selectedFiles.length }})</span>
+          </div>
+        </div>
+        <v-expand-transition>
+          <div v-show="showSelectedFiles">
+            <v-file-upload
+              v-model="selectedFiles"
+              accept=".pdf"
+              multiple
+              show-size
+              chips
+              color="primary"
+              :loading="uploading"
+              class="file-upload-area"
+            ></v-file-upload>
+          </div>
+        </v-expand-transition>
+      </div>
 
       <div class="file-types-hint">
         <v-chip size="small" variant="text" prepend-icon="mdi-information-outline">
@@ -121,6 +133,7 @@ const selectedFiles = ref<File[]>([]);
 const uploading = ref(false);
 const page = ref(1);
 const itemsPerPage = ref(6);
+const showSelectedFiles = ref(true);
 
 const paginatedFiles = computed(() => {
   const allFiles = filesStore.getAllFiles();
@@ -282,24 +295,32 @@ function formatSize(bytes: number): string {
   transform: scale(1.02);
 }
 
-.file-upload-area :deep(.v-file-upload__files) {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
-  gap: 1rem !important;
-  margin-top: 1rem !important;
+.collapsible-section {
+  margin-bottom: 1rem;
 }
 
-.file-upload-area :deep(.v-file-upload-item) {
-  border-radius: 12px !important;
-  border: 1px solid #e2e8f0 !important;
-  background: white !important;
-  transition: all 0.2s ease !important;
-  max-width: none !important;
+.collapse-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem;
+  background: rgba(102, 126, 234, 0.05);
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-bottom: 0.5rem;
 }
 
-.file-upload-area :deep(.v-file-upload-item:hover) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
-  transform: translateY(-2px) !important;
+.collapse-header:hover {
+  background: rgba(102, 126, 234, 0.1);
+}
+
+.collapse-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: #667eea;
 }
 
 .upload-empty-state {
