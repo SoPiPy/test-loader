@@ -13,43 +13,16 @@
         </div>
       </div>
 
-      <v-file-input
+      <v-file-upload
         v-model="selectedFiles"
-        multiple
-        chips
-        show-size
-        counter
         accept=".pdf"
-        label="Drop PDF files here or click to browse"
-        prepend-icon="mdi-file-pdf-box"
-        variant="solo-filled"
-        class="file-input-drag"
+        multiple
+        show-size
+        chips
+        color="primary"
         :loading="uploading"
-        @dragover="isDragging = true"
-        @dragleave="isDragging = false"
-        @drop="isDragging = false"
-        :class="{ 'dragging': isDragging }"
-      >
-        <template v-slot:selection="{ fileNames }">
-          <template v-for="(fileName, index) in fileNames" :key="fileName">
-            <v-chip
-              v-if="index < 2"
-              color="primary"
-              size="small"
-              label
-              class="me-2"
-            >
-              {{ fileName }}
-            </v-chip>
-            <span
-              v-else-if="index === 2"
-              class="text-overline text-grey-darken-1 mx-2"
-            >
-              +{{ fileNames.length - 2 }} more
-            </span>
-          </template>
-        </template>
-      </v-file-input>
+        class="file-upload-area"
+      ></v-file-upload>
 
       <div class="file-types-hint">
         <v-chip size="small" variant="text" prepend-icon="mdi-information-outline">
@@ -146,7 +119,6 @@ const jobsStore = useJobsStore();
 
 const selectedFiles = ref<File[]>([]);
 const uploading = ref(false);
-const isDragging = ref(false);
 const page = ref(1);
 const itemsPerPage = ref(6);
 
@@ -287,32 +259,48 @@ function formatSize(bytes: number): string {
   line-height: 1.4;
 }
 
-.file-input-drag {
+.file-upload-area {
   margin-bottom: 1rem;
-  transition: all 0.3s ease;
 }
 
-.file-input-drag.dragging {
-  transform: scale(1.02);
-  box-shadow: 0 8px 24px rgba(102, 126, 234, 0.2);
-}
-
-.file-input-drag :deep(.v-field) {
-  min-height: 120px;
-  border: 2px dashed #e2e8f0;
-  border-radius: 16px;
+.file-upload-area :deep(.v-file-upload__dropzone) {
+  min-height: 200px;
+  border: 3px dashed #e2e8f0;
+  border-radius: 20px;
   background: rgba(248, 250, 252, 0.5);
   transition: all 0.3s ease;
 }
 
-.file-input-drag:hover :deep(.v-field) {
+.file-upload-area :deep(.v-file-upload__dropzone:hover) {
   border-color: #cbd5e1;
   background: rgba(248, 250, 252, 0.8);
 }
 
-.file-input-drag.dragging :deep(.v-field) {
+.file-upload-area :deep(.v-file-upload__dropzone--active) {
   border-color: #667eea;
   background: rgba(102, 126, 234, 0.05);
+  transform: scale(1.02);
+}
+
+.upload-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.empty-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #334155;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.empty-subtitle {
+  color: #64748b;
+  margin: 0;
 }
 
 .file-types-hint {
