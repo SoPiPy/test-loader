@@ -13,55 +13,44 @@
         </div>
       </div>
 
-      <div
-        class="drop-zone"
-        :class="{ 'drag-over': isDragging, 'has-files': selectedFiles.length > 0 }"
-        @dragover.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @drop.prevent="handleDrop"
-        @click="triggerFileInput"
+      <v-file-input
+        v-model="selectedFiles"
+        multiple
+        chips
+        show-size
+        counter
+        accept=".csv,.xlsx,.xls,.json"
+        label="Select files to upload"
+        prepend-icon="mdi-paperclip"
+        variant="outlined"
+        class="file-input"
+        :loading="uploading"
       >
-        <input
-          ref="fileInput"
-          type="file"
-          multiple
-          @change="handleFileInput"
-          style="display: none"
-        />
-
-        <div v-if="selectedFiles.length === 0" class="drop-zone-content">
-          <div class="upload-icon-container" :class="{ 'pulse-animation': isDragging }">
-            <v-icon size="80" :color="isDragging ? 'primary' : 'grey-lighten-1'">
-              mdi-file-upload-outline
-            </v-icon>
-          </div>
-          <p class="drop-zone-title">Drop files here</p>
-          <p class="drop-zone-subtitle">or click to browse</p>
-          <div class="file-types-hint">
-            <v-chip size="small" variant="text">CSV</v-chip>
-            <v-chip size="small" variant="text">XLSX</v-chip>
-            <v-chip size="small" variant="text">JSON</v-chip>
-          </div>
-        </div>
-
-        <div v-else class="selected-files-preview">
-          <div class="files-count">
-            <v-icon size="48" color="primary">mdi-file-check</v-icon>
-            <p class="count-text">{{ selectedFiles.length }} file(s) selected</p>
-          </div>
-          <div class="files-list">
+        <template v-slot:selection="{ fileNames }">
+          <template v-for="(fileName, index) in fileNames" :key="fileName">
             <v-chip
-              v-for="(file, index) in selectedFiles"
-              :key="index"
-              closable
-              @click:close="removeFile(index)"
-              class="file-chip"
+              v-if="index < 3"
+              color="primary"
+              size="small"
+              label
+              class="me-2"
             >
-              <v-icon size="16" class="mr-2">mdi-file</v-icon>
-              {{ file.name }}
+              {{ fileName }}
             </v-chip>
-          </div>
-        </div>
+            <span
+              v-else-if="index === 3"
+              class="text-overline text-grey-darken-1 mx-2"
+            >
+              +{{ fileNames.length - 3 }} File(s)
+            </span>
+          </template>
+        </template>
+      </v-file-input>
+
+      <div class="file-types-hint">
+        <v-chip size="small" variant="text" prepend-icon="mdi-information-outline">
+          Supported formats: CSV, XLSX, JSON
+        </v-chip>
       </div>
 
       <v-btn
@@ -144,32 +133,6 @@ const jobsStore = useJobsStore();
 
 const selectedFiles = ref<File[]>([]);
 const uploading = ref(false);
-const isDragging = ref(false);
-const fileInput = ref<HTMLInputElement | null>(null);
-
-function handleDrop(e: DragEvent) {
-  isDragging.value = false;
-  const files = Array.from(e.dataTransfer?.files || []);
-  if (files.length > 0) {
-    selectedFiles.value = [...selectedFiles.value, ...files];
-  }
-}
-
-function triggerFileInput() {
-  fileInput.value?.click();
-}
-
-function handleFileInput(e: Event) {
-  const target = e.target as HTMLInputElement;
-  const files = Array.from(target.files || []);
-  if (files.length > 0) {
-    selectedFiles.value = [...selectedFiles.value, ...files];
-  }
-}
-
-function removeFile(index: number) {
-  selectedFiles.value.splice(index, 1);
-}
 
 async function uploadFiles() {
   if (selectedFiles.value.length === 0) return;
@@ -297,49 +260,8 @@ function formatSize(bytes: number): string {
   line-height: 1.4;
 }
 
-.drop-zone {
-  border: 3px dashed #e2e8f0;
-  border-radius: 20px;
-  padding: 3rem 2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-  background: rgba(248, 250, 252, 0.5);
-  min-height: 300px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.drop-zone:hover {
-  border-color: #cbd5e1;
-  background: rgba(248, 250, 252, 0.8);
-}
-
-.drop-zone.drag-over {
-  border-color: #667eea;
-  background: rgba(102, 126, 234, 0.05);
-  transform: scale(1.02);
-}
-
-.drop-zone-content {
-  width: 100%;
-}
-
-.upload-icon-container {
-  margin-bottom: 1.5rem;
-}
-
-.drop-zone-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #334155;
-  margin: 0 0 0.5rem 0;
-}
-
-.drop-zone-subtitle {
-  color: #64748b;
-  margin: 0 0 1.5rem 0;
+.file-input {
+  margin-bottom: 1rem;
 }
 
 .file-types-hint {
@@ -347,32 +269,7 @@ function formatSize(bytes: number): string {
   gap: 0.5rem;
   justify-content: center;
   flex-wrap: wrap;
-}
-
-.selected-files-preview {
-  width: 100%;
-}
-
-.files-count {
   margin-bottom: 1.5rem;
-}
-
-.count-text {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #667eea;
-  margin: 0.5rem 0 0 0;
-}
-
-.files-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.75rem;
-  justify-content: center;
-}
-
-.file-chip {
-  font-size: 0.875rem;
 }
 
 .upload-btn {
