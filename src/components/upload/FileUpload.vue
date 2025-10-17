@@ -283,22 +283,23 @@ function formatSize(bytes: number): string {
 }
 
 .file-upload-area :deep(.v-file-upload__files) {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 1rem;
-  margin-top: 1rem;
+  display: grid !important;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+  gap: 1rem !important;
+  margin-top: 1rem !important;
 }
 
 .file-upload-area :deep(.v-file-upload-item) {
-  border-radius: 12px;
-  border: 1px solid #e2e8f0;
-  background: white;
-  transition: all 0.2s ease;
+  border-radius: 12px !important;
+  border: 1px solid #e2e8f0 !important;
+  background: white !important;
+  transition: all 0.2s ease !important;
+  max-width: none !important;
 }
 
 .file-upload-area :deep(.v-file-upload-item:hover) {
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08) !important;
+  transform: translateY(-2px) !important;
 }
 
 .upload-empty-state {
