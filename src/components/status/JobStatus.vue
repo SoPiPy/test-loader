@@ -1,6 +1,6 @@
 <template>
   <div class="status-layout">
-    <div class="jobs-sidebar">
+    <v-sheet class="jobs-sidebar" rounded="xl" border>
       <v-list density="compact" class="pa-0">
         <v-list-subheader class="text-uppercase font-weight-bold">
           <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
@@ -9,10 +9,10 @@
 
         <v-divider></v-divider>
 
-        <div v-if="allJobs.length === 0" class="pa-4 text-center text-grey">
+        <v-sheet v-if="allJobs.length === 0" class="pa-4 text-center text-grey">
           <v-icon size="48" color="grey-lighten-1">mdi-briefcase-outline</v-icon>
           <p class="text-caption mt-2">No jobs yet</p>
-        </div>
+        </v-sheet>
 
         <v-list-item
           v-for="job in allJobs"
@@ -47,140 +47,174 @@
           </template>
         </v-list-item>
       </v-list>
-    </div>
+    </v-sheet>
 
-    <div class="status-container glass-card">
-      <div class="section-header">
-        <div class="title-with-icon">
-          <div class="header-icon-wrapper floating-element">
-            <v-icon size="32" color="primary">mdi-progress-check</v-icon>
-          </div>
-          <div class="header-text">
-            <h2 class="section-title gradient-text">Processing Status</h2>
-            <p class="section-subtitle">Monitor your file processing jobs in real-time</p>
-          </div>
-        </div>
-      </div>
-
-      <div class="status-content">
-      <div class="stats-bar">
-        <div class="stat-card">
-          <v-icon size="28" color="primary">mdi-file-clock</v-icon>
-          <div class="stat-info">
-            <p class="stat-value">{{ activeJobs }}</p>
-            <p class="stat-label">Active Jobs</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <v-icon size="28" color="success">mdi-check-circle</v-icon>
-          <div class="stat-info">
-            <p class="stat-value">{{ completedJobs }}</p>
-            <p class="stat-label">Completed</p>
-          </div>
-        </div>
-        <div class="stat-card">
-          <v-icon size="28" color="info">mdi-chart-line</v-icon>
-          <div class="stat-info">
-            <p class="stat-value">{{ overallProgress }}%</p>
-            <p class="stat-label">Overall Progress</p>
-          </div>
-        </div>
-      </div>
-
-      <div v-if="processingFiles.length === 0" class="empty-state">
-        <div class="empty-icon-wrapper">
-          <v-icon size="80" color="grey-lighten-1">mdi-information-outline</v-icon>
-        </div>
-        <p class="empty-title">No active processing jobs</p>
-        <p class="empty-subtitle">Upload files to see their processing status here</p>
-      </div>
-
-      <div v-else class="jobs-list">
-        <div
-          v-for="file in processingFiles"
-          :key="file.id"
-          class="job-card"
-        >
-          <div class="job-header">
-            <div class="job-icon" :style="{ background: getStatusGradient(file.status) }">
-              <v-icon color="white" size="24">{{ getStatusIcon(file.status) }}</v-icon>
-            </div>
-            <div class="job-main-info">
-              <h3 class="job-name">{{ file.name }}</h3>
-              <p class="job-meta">
-                <v-chip size="x-small" :color="getStatusColor(file.status)" variant="tonal">
-                  {{ file.status.toUpperCase() }}
-                </v-chip>
-                <span v-if="file.jobId" class="job-id">Job: {{ file.jobId.slice(0, 12) }}...</span>
-              </p>
-            </div>
-            <v-btn
-              icon
-              size="small"
-              variant="text"
-              @click="toggleJobDetails(file.id)"
+    <v-card class="status-container" rounded="xl">
+      <v-card-text class="pa-6">
+        <div class="text-center mb-6">
+          <div class="d-flex align-center justify-center ga-4">
+            <v-sheet
+              class="header-icon-wrapper"
+              color="primary"
+              rounded="lg"
+              elevation="0"
             >
-              <v-icon>{{ expandedJobs.includes(file.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
-            </v-btn>
-          </div>
-
-          <div v-if="file.jobId" class="job-progress">
-            <div class="progress-info">
-              <span class="progress-label">Processing</span>
-              <span class="progress-value">{{ getJobProgress(file.jobId) }}%</span>
+              <v-icon size="32" color="primary">mdi-progress-check</v-icon>
+            </v-sheet>
+            <div class="text-start">
+              <h2 class="text-h4 font-weight-bold gradient-text">Processing Status</h2>
+              <p class="text-body-2 text-grey">Monitor your file processing jobs in real-time</p>
             </div>
-            <v-progress-linear
-              :model-value="getJobProgress(file.jobId)"
-              :color="getStatusColor(file.status)"
-              height="8"
-              rounded
-              class="custom-progress"
-            ></v-progress-linear>
-            <p v-if="getJob(file.jobId)" class="progress-message">
-              {{ getJob(file.jobId)?.message || 'Processing...' }}
-            </p>
           </div>
-
-          <v-expand-transition>
-            <div v-if="expandedJobs.includes(file.id)" class="job-details">
-              <div class="details-grid">
-                <div class="detail-item">
-                  <v-icon size="18" color="primary" class="mr-2">mdi-identifier</v-icon>
-                  <div class="detail-content">
-                    <p class="detail-label">Job ID</p>
-                    <p class="detail-value">{{ file.jobId }}</p>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <v-icon size="18" color="primary" class="mr-2">mdi-calendar</v-icon>
-                  <div class="detail-content">
-                    <p class="detail-label">Started</p>
-                    <p class="detail-value">{{ formatDate(file.uploadedAt) }}</p>
-                  </div>
-                </div>
-                <div class="detail-item">
-                  <v-icon size="18" color="primary" class="mr-2">mdi-file-key</v-icon>
-                  <div class="detail-content">
-                    <p class="detail-label">S3 Key</p>
-                    <p class="detail-value text-truncate">{{ file.s3Key }}</p>
-                  </div>
-                </div>
-              </div>
-
-              <v-alert
-                v-if="file.error"
-                type="error"
-                variant="tonal"
-                class="error-alert"
-              >
-                {{ file.error }}
-              </v-alert>
-            </div>
-          </v-expand-transition>
         </div>
-      </div>
-    </div>
-    </div>
+
+        <div class="status-content">
+          <v-row class="mb-6">
+            <v-col cols="12" md="4">
+              <v-card rounded="lg" elevation="0" border>
+                <v-card-text class="d-flex align-center ga-4">
+                  <v-icon size="28" color="primary">mdi-file-clock</v-icon>
+                  <div>
+                    <div class="text-h5 font-weight-bold">{{ activeJobs }}</div>
+                    <div class="text-caption text-grey">Active Jobs</div>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-card rounded="lg" elevation="0" border>
+                <v-card-text class="d-flex align-center ga-4">
+                  <v-icon size="28" color="success">mdi-check-circle</v-icon>
+                  <div>
+                    <div class="text-h5 font-weight-bold">{{ completedJobs }}</div>
+                    <div class="text-caption text-grey">Completed</div>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+            <v-col cols="12" md="4">
+              <v-card rounded="lg" elevation="0" border>
+                <v-card-text class="d-flex align-center ga-4">
+                  <v-icon size="28" color="info">mdi-chart-line</v-icon>
+                  <div>
+                    <div class="text-h5 font-weight-bold">{{ overallProgress }}%</div>
+                    <div class="text-caption text-grey">Overall Progress</div>
+                  </div>
+                </v-card-text>
+              </v-card>
+            </v-col>
+          </v-row>
+
+          <v-sheet v-if="processingFiles.length === 0" class="empty-state pa-10 text-center" rounded="lg">
+            <v-icon size="80" color="grey-lighten-1">mdi-information-outline</v-icon>
+            <div class="text-h6 font-weight-medium mt-4">No active processing jobs</div>
+            <div class="text-body-2 text-grey">Upload files to see their processing status here</div>
+          </v-sheet>
+
+          <div v-else class="jobs-list">
+            <v-card
+              v-for="file in processingFiles"
+              :key="file.id"
+              rounded="xl"
+              elevation="0"
+              border
+              class="mb-4"
+            >
+              <v-card-text>
+                <div class="d-flex align-center ga-4 mb-4">
+                  <v-sheet
+                    class="job-icon"
+                    :style="{ background: getStatusGradient(file.status) }"
+                    rounded="lg"
+                  >
+                    <v-icon color="white" size="24">{{ getStatusIcon(file.status) }}</v-icon>
+                  </v-sheet>
+                  <div class="flex-grow-1" style="min-width: 0;">
+                    <div class="text-h6 font-weight-medium text-truncate">{{ file.name }}</div>
+                    <div class="d-flex align-center ga-2 mt-1">
+                      <v-chip size="x-small" :color="getStatusColor(file.status)" variant="tonal">
+                        {{ file.status.toUpperCase() }}
+                      </v-chip>
+                      <span v-if="file.jobId" class="text-caption text-grey">Job: {{ file.jobId.slice(0, 12) }}...</span>
+                    </div>
+                  </div>
+                  <v-btn
+                    icon="mdi-chevron-down"
+                    size="small"
+                    variant="text"
+                    @click="toggleJobDetails(file.id)"
+                  >
+                    <v-icon>{{ expandedJobs.includes(file.id) ? 'mdi-chevron-up' : 'mdi-chevron-down' }}</v-icon>
+                  </v-btn>
+                </div>
+
+                <div v-if="file.jobId">
+                  <div class="d-flex justify-space-between align-center mb-2">
+                    <span class="text-body-2 font-weight-medium">Processing</span>
+                    <span class="text-body-2 font-weight-bold primary--text">{{ getJobProgress(file.jobId) }}%</span>
+                  </div>
+                  <v-progress-linear
+                    :model-value="getJobProgress(file.jobId)"
+                    :color="getStatusColor(file.status)"
+                    height="8"
+                    rounded
+                    class="mb-2"
+                  ></v-progress-linear>
+                  <div v-if="getJob(file.jobId)" class="text-caption text-grey font-italic">
+                    {{ getJob(file.jobId)?.message || 'Processing...' }}
+                  </div>
+                </div>
+
+                <v-expand-transition>
+                  <div v-if="expandedJobs.includes(file.id)">
+                    <v-divider class="my-4"></v-divider>
+                    <v-row>
+                      <v-col cols="12" md="4">
+                        <div class="d-flex align-start ga-2">
+                          <v-icon size="18" color="primary">mdi-identifier</v-icon>
+                          <div>
+                            <div class="text-caption text-grey text-uppercase font-weight-bold">Job ID</div>
+                            <div class="text-body-2">{{ file.jobId }}</div>
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <div class="d-flex align-start ga-2">
+                          <v-icon size="18" color="primary">mdi-calendar</v-icon>
+                          <div>
+                            <div class="text-caption text-grey text-uppercase font-weight-bold">Started</div>
+                            <div class="text-body-2">{{ formatDate(file.uploadedAt) }}</div>
+                          </div>
+                        </div>
+                      </v-col>
+                      <v-col cols="12" md="4">
+                        <div class="d-flex align-start ga-2">
+                          <v-icon size="18" color="primary">mdi-file-key</v-icon>
+                          <div style="min-width: 0;">
+                            <div class="text-caption text-grey text-uppercase font-weight-bold">S3 Key</div>
+                            <div class="text-body-2 text-truncate">{{ file.s3Key }}</div>
+                          </div>
+                        </div>
+                      </v-col>
+                    </v-row>
+
+                    <v-alert
+                      v-if="file.error"
+                      type="error"
+                      variant="tonal"
+                      rounded="lg"
+                      class="mt-4"
+                    >
+                      {{ file.error }}
+                    </v-alert>
+                  </div>
+                </v-expand-transition>
+              </v-card-text>
+            </v-card>
+          </div>
+        </div>
+      </v-card-text>
+    </v-card>
   </div>
 </template>
 
@@ -310,15 +344,7 @@ function toggleJobDetails(fileId: string) {
 .jobs-sidebar {
   width: 280px;
   flex-shrink: 0;
-  background: white;
-  border-radius: 16px;
-  border: 2px solid #e2e8f0;
   overflow-y: auto;
-}
-
-.v-theme--dark .jobs-sidebar {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
 }
 
 .jobs-sidebar::-webkit-scrollbar {
@@ -358,7 +384,6 @@ function toggleJobDetails(fileId: string) {
 
 .status-container {
   flex: 1;
-  padding: 2rem;
   overflow-y: auto;
   display: flex;
   flex-direction: column;
@@ -382,147 +407,27 @@ function toggleJobDetails(fileId: string) {
   background: rgba(102, 126, 234, 0.8);
 }
 
-.section-header {
-  text-align: center;
-  margin-bottom: 1.5rem;
-  flex-shrink: 0;
-}
-
-.title-with-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 1.25rem;
-}
-
 .header-icon-wrapper {
   width: 64px;
   height: 64px;
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
-  border-radius: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0;
-}
-
-.header-text {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  min-height: 64px;
-}
-
-.section-title {
-  font-size: 2rem;
-  font-weight: 700;
-  margin: 0;
-  line-height: 1.2;
-}
-
-.section-subtitle {
-  color: #64748b;
-  font-size: 1rem;
-  margin: 0.25rem 0 0 0;
-  line-height: 1.4;
 }
 
 .status-content {
   max-width: 1000px;
-  margin: 0 auto;
-  flex: 1;
-  overflow: hidden;
-  display: flex;
-  flex-direction: column;
-}
-
-.stats-bar {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1.5rem;
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  transition: all 0.3s ease;
-}
-
-.v-theme--light .stat-card {
-  background: white;
-}
-
-.v-theme--dark .stat-card {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.stat-card:hover {
-  outline: 2px solid #667eea;
-  outline-offset: -2px;
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-value {
-  font-size: 1.75rem;
-  font-weight: 700;
-  margin: 0 0 0.25rem 0;
-  line-height: 1;
-}
-
-.v-theme--light .stat-value {
-  color: #334155;
-}
-
-.v-theme--dark .stat-value {
-  color: #e2e8f0;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: #64748b;
-  margin: 0;
+  width: 100%;
 }
 
 .empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  padding: 4rem 2rem;
-  text-align: center;
-}
-
-.empty-icon-wrapper {
-  margin-bottom: 1.5rem;
-}
-
-.empty-title {
-  font-size: 1.25rem;
-  font-weight: 600;
-  color: #334155;
-  margin: 0 0 0.5rem 0;
-}
-
-.empty-subtitle {
-  color: #64748b;
-  margin: 0;
+  min-height: 200px;
 }
 
 .jobs-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
   overflow-y: auto;
-  flex: 1;
+  max-height: 600px;
 }
 
 .jobs-list::-webkit-scrollbar {
@@ -543,148 +448,13 @@ function toggleJobDetails(fileId: string) {
   background: rgba(102, 126, 234, 0.8);
 }
 
-.job-card {
-  border: 2px solid #e2e8f0;
-  border-radius: 16px;
-  padding: 1.5rem;
-  transition: all 0.3s ease;
-}
-
-.v-theme--light .job-card {
-  background: white;
-}
-
-.v-theme--dark .job-card {
-  background: rgba(30, 41, 59, 0.6);
-  border-color: rgba(255, 255, 255, 0.1);
-}
-
-.job-card:hover {
-  outline: 2px solid #667eea;
-  outline-offset: -2px;
-}
-
-.job-header {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-
 .job-icon {
   width: 56px;
   height: 56px;
-  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-}
-
-.job-main-info {
-  flex: 1;
-  min-width: 0;
-}
-
-.job-name {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: #334155;
-  margin: 0 0 0.5rem 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.job-meta {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  margin: 0;
-}
-
-.job-id {
-  font-size: 0.8125rem;
-  color: #64748b;
-}
-
-.job-progress {
-  margin-top: 1rem;
-}
-
-.progress-info {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.5rem;
-}
-
-.progress-label {
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: #334155;
-}
-
-.progress-value {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: #667eea;
-}
-
-.custom-progress {
-  margin-bottom: 0.5rem;
-}
-
-.progress-message {
-  font-size: 0.8125rem;
-  color: #64748b;
-  margin: 0;
-  font-style: italic;
-}
-
-.job-details {
-  margin-top: 1.5rem;
-  padding-top: 1.5rem;
-  border-top: 2px solid #e2e8f0;
-}
-
-.details-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.25rem;
-  margin-bottom: 1rem;
-}
-
-.detail-item {
-  display: flex;
-  align-items: start;
-  gap: 0.5rem;
-}
-
-.detail-content {
-  flex: 1;
-  min-width: 0;
-}
-
-.detail-label {
-  font-size: 0.75rem;
-  color: #64748b;
-  margin: 0 0 0.25rem 0;
-  text-transform: uppercase;
-  font-weight: 600;
-  letter-spacing: 0.5px;
-}
-
-.detail-value {
-  font-size: 0.875rem;
-  color: #334155;
-  margin: 0;
-  word-break: break-all;
-}
-
-.error-alert {
-  border-radius: 12px;
-  margin-top: 1rem;
 }
 
 @media (max-width: 768px) {
@@ -695,30 +465,6 @@ function toggleJobDetails(fileId: string) {
   .jobs-sidebar {
     width: 100%;
     max-height: 200px;
-  }
-
-  .status-container {
-    padding: 1.5rem;
-  }
-
-  .section-title {
-    font-size: 1.5rem;
-  }
-
-  .stats-bar {
-    grid-template-columns: 1fr;
-  }
-
-  .stat-card {
-    padding: 1rem;
-  }
-
-  .stat-value {
-    font-size: 1.5rem;
-  }
-
-  .details-grid {
-    grid-template-columns: 1fr;
   }
 }
 </style>
