@@ -1,6 +1,6 @@
 <template>
   <div class="status-layout">
-    <v-card class="jobs-sidebar" rounded="xl" elevation="2" border>
+    <v-card class="jobs-sidebar" rounded="xl" elevation="0">
       <v-list density="compact" class="pa-0">
         <v-list-subheader class="text-uppercase font-weight-bold">
           <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
@@ -358,14 +358,14 @@ function getJobFiles(jobId: string | undefined) {
   width: 280px;
   flex-shrink: 0;
   overflow-y: auto;
-  background: rgba(255, 255, 255, 0.9);
+  background: rgba(255, 255, 255, 0.6);
   backdrop-filter: blur(10px);
-  border: 1px solid rgba(102, 126, 234, 0.2) !important;
+  border: 1px solid rgba(0, 0, 0, 0.08) !important;
 }
 
 .v-theme--dark .jobs-sidebar {
-  background: rgba(30, 30, 30, 0.9);
-  border: 1px solid rgba(102, 126, 234, 0.3) !important;
+  background: rgba(30, 30, 30, 0.6);
+  border: 1px solid rgba(255, 255, 255, 0.08) !important;
 }
 
 .jobs-sidebar::-webkit-scrollbar {
@@ -431,10 +431,11 @@ function getJobFiles(jobId: string | undefined) {
 .header-icon-wrapper {
   width: 64px;
   height: 64px;
-  background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
 }
 
 .status-content {
