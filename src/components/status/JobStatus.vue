@@ -50,7 +50,7 @@
     </v-card>
 
     <v-card class="status-container" rounded="xl" elevation="0">
-      <v-card-title class="d-flex flex-column align-center ga-3 pa-6 text-center">
+      <v-card-title class="d-flex align-center ga-4 pa-6">
         <v-card
           class="header-icon-wrapper"
           color="primary"
@@ -59,7 +59,7 @@
         >
           <v-icon size="32" color="white">mdi-progress-check</v-icon>
         </v-card>
-        <div>
+        <div class="flex-grow-1 text-center">
           <div class="text-h4 font-weight-bold gradient-text">Processing Status</div>
           <div class="text-body-2 text-grey mt-1">Monitor your file processing jobs in real-time</div>
         </div>
