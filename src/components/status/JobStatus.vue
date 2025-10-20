@@ -1,6 +1,6 @@
 <template>
   <div class="status-layout">
-    <v-sheet class="jobs-sidebar" rounded="xl" border>
+    <v-card class="jobs-sidebar" rounded="xl" elevation="0">
       <v-list density="compact" class="pa-0">
         <v-list-subheader class="text-uppercase font-weight-bold">
           <v-icon size="small" class="mr-2">mdi-briefcase</v-icon>
@@ -9,10 +9,10 @@
 
         <v-divider></v-divider>
 
-        <v-sheet v-if="allJobs.length === 0" class="pa-4 text-center text-grey">
+        <div v-if="allJobs.length === 0" class="pa-4 text-center text-grey">
           <v-icon size="48" color="grey-lighten-1">mdi-briefcase-outline</v-icon>
           <p class="text-caption mt-2">No jobs yet</p>
-        </v-sheet>
+        </div>
 
         <v-list-item
           v-for="job in allJobs"
@@ -47,20 +47,20 @@
           </template>
         </v-list-item>
       </v-list>
-    </v-sheet>
+    </v-card>
 
-    <v-card class="status-container" rounded="xl">
+    <v-card class="status-container" rounded="xl" elevation="0">
       <v-card-text class="pa-6">
         <div class="text-center mb-6">
           <div class="d-flex align-center justify-center ga-4">
-            <v-sheet
+            <v-card
               class="header-icon-wrapper"
               color="primary"
               rounded="lg"
               elevation="0"
             >
-              <v-icon size="32" color="primary">mdi-progress-check</v-icon>
-            </v-sheet>
+              <v-icon size="32" color="white">mdi-progress-check</v-icon>
+            </v-card>
             <div class="text-start">
               <h2 class="text-h4 font-weight-bold gradient-text">Processing Status</h2>
               <p class="text-body-2 text-grey">Monitor your file processing jobs in real-time</p>
@@ -105,11 +105,11 @@
             </v-col>
           </v-row>
 
-          <v-sheet v-if="processingFiles.length === 0" class="empty-state pa-10 text-center" rounded="lg">
+          <v-card v-if="processingFiles.length === 0" class="empty-state pa-10 text-center" rounded="lg" elevation="0">
             <v-icon size="80" color="grey-lighten-1">mdi-information-outline</v-icon>
             <div class="text-h6 font-weight-medium mt-4">No active processing jobs</div>
             <div class="text-body-2 text-grey">Upload files to see their processing status here</div>
-          </v-sheet>
+          </v-card>
 
           <div v-else class="jobs-list">
             <v-card
@@ -122,13 +122,14 @@
             >
               <v-card-text>
                 <div class="d-flex align-center ga-4 mb-4">
-                  <v-sheet
+                  <v-card
                     class="job-icon"
                     :style="{ background: getStatusGradient(file.status) }"
                     rounded="lg"
+                    elevation="0"
                   >
                     <v-icon color="white" size="24">{{ getStatusIcon(file.status) }}</v-icon>
-                  </v-sheet>
+                  </v-card>
                   <div class="flex-grow-1" style="min-width: 0;">
                     <div class="text-h6 font-weight-medium text-truncate">{{ file.name }}</div>
                     <div class="d-flex align-center ga-2 mt-1">
