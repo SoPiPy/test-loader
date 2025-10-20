@@ -188,10 +188,20 @@
                       </v-col>
                       <v-col cols="12" md="4">
                         <div class="d-flex align-start ga-2">
-                          <v-icon size="18" color="primary">mdi-file-key</v-icon>
+                          <v-icon size="18" color="primary">mdi-file-multiple</v-icon>
                           <div style="min-width: 0;">
-                            <div class="text-caption text-grey text-uppercase font-weight-bold">S3 Key</div>
-                            <div class="text-body-2 text-truncate">{{ file.s3Key }}</div>
+                            <div class="text-caption text-grey text-uppercase font-weight-bold">Files in Job</div>
+                            <div class="text-body-2">
+                              <v-chip
+                                v-for="jobFile in getJobFiles(file.jobId)"
+                                :key="jobFile.id"
+                                size="x-small"
+                                variant="outlined"
+                                class="mr-1 mb-1"
+                              >
+                                {{ jobFile.name }}
+                              </v-chip>
+                            </div>
                           </div>
                         </div>
                       </v-col>
@@ -328,6 +338,11 @@ function toggleJobDetails(fileId: string) {
   } else {
     expandedJobs.value.push(fileId);
   }
+}
+
+function getJobFiles(jobId: string | undefined) {
+  if (!jobId) return [];
+  return filesStore.getAllFiles().filter(f => f.jobId === jobId);
 }
 </script>
 
