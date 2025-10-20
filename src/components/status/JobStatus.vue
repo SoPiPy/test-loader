@@ -147,13 +147,12 @@
                   </v-btn>
                 </div>
 
-                <div v-if="file.jobId">
+                <div v-if="file.jobId && file.status === 'processing'">
                   <div class="d-flex justify-space-between align-center mb-2">
                     <span class="text-body-2 font-weight-medium">Processing</span>
-                    <span class="text-body-2 font-weight-bold primary--text">{{ getJobProgress(file.jobId) }}%</span>
                   </div>
                   <v-progress-linear
-                    :model-value="getJobProgress(file.jobId)"
+                    indeterminate
                     :color="getStatusColor(file.status)"
                     height="8"
                     rounded
