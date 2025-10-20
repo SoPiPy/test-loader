@@ -18,6 +18,11 @@ export interface Job {
   message?: string;
   createdAt: Date;
   updatedAt: Date;
+  stages?: {
+    upload: { status: 'pending' | 'active' | 'completed' | 'failed'; timestamp?: Date };
+    extract: { status: 'pending' | 'active' | 'completed' | 'failed'; timestamp?: Date };
+    process: { status: 'pending' | 'active' | 'completed' | 'failed'; timestamp?: Date };
+  };
 }
 
 export interface DataRow {

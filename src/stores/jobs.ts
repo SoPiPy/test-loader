@@ -18,6 +18,11 @@ export const useJobsStore = defineStore('jobs', () => {
         message: 'Extraction completed successfully',
         createdAt: new Date(Date.now() - 3600000),
         updatedAt: new Date(Date.now() - 3000000),
+        stages: {
+          upload: { status: 'completed', timestamp: new Date(Date.now() - 3600000) },
+          extract: { status: 'completed', timestamp: new Date(Date.now() - 3400000) },
+          process: { status: 'completed', timestamp: new Date(Date.now() - 3000000) },
+        },
       },
       {
         id: 'job-2',
@@ -27,6 +32,11 @@ export const useJobsStore = defineStore('jobs', () => {
         message: 'Extraction completed successfully',
         createdAt: new Date(Date.now() - 7200000),
         updatedAt: new Date(Date.now() - 6600000),
+        stages: {
+          upload: { status: 'completed', timestamp: new Date(Date.now() - 7200000) },
+          extract: { status: 'completed', timestamp: new Date(Date.now() - 6900000) },
+          process: { status: 'completed', timestamp: new Date(Date.now() - 6600000) },
+        },
       },
       {
         id: 'job-3',
@@ -36,6 +46,11 @@ export const useJobsStore = defineStore('jobs', () => {
         message: 'Extraction completed successfully',
         createdAt: new Date(Date.now() - 10800000),
         updatedAt: new Date(Date.now() - 10200000),
+        stages: {
+          upload: { status: 'completed', timestamp: new Date(Date.now() - 10800000) },
+          extract: { status: 'completed', timestamp: new Date(Date.now() - 10500000) },
+          process: { status: 'completed', timestamp: new Date(Date.now() - 10200000) },
+        },
       },
       {
         id: 'job-4',
@@ -45,6 +60,11 @@ export const useJobsStore = defineStore('jobs', () => {
         message: 'Extracting data from file...',
         createdAt: new Date(Date.now() - 300000),
         updatedAt: new Date(Date.now() - 60000),
+        stages: {
+          upload: { status: 'completed', timestamp: new Date(Date.now() - 300000) },
+          extract: { status: 'active', timestamp: new Date(Date.now() - 200000) },
+          process: { status: 'pending' },
+        },
       },
     ];
 

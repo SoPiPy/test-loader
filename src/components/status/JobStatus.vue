@@ -103,6 +103,90 @@
             </v-col>
           </v-row>
 
+          <v-card v-if="selectedJobId && getJob(selectedJobId)" class="pipeline-card mb-6" rounded="xl" elevation="0" border>
+            <v-card-text class="pa-6">
+              <div class="text-overline text-grey mb-4">Processing Pipeline</div>
+              <v-timeline
+                align="start"
+                side="end"
+                density="compact"
+                class="pipeline-timeline"
+              >
+                <v-timeline-item
+                  :dot-color="getPipelineStageColor('upload')"
+                  size="small"
+                >
+                  <template v-slot:icon>
+                    <v-icon size="16" color="white">
+                      {{ getPipelineStageIcon('upload') }}
+                    </v-icon>
+                  </template>
+                  <div class="d-flex align-center justify-space-between">
+                    <div>
+                      <div class="text-body-1 font-weight-medium">Upload</div>
+                      <div class="text-caption text-grey">File uploaded to cloud storage</div>
+                    </div>
+                    <v-chip
+                      :color="getPipelineStageColor('upload')"
+                      size="small"
+                      variant="tonal"
+                    >
+                      {{ getPipelineStageStatus('upload') }}
+                    </v-chip>
+                  </div>
+                </v-timeline-item>
+
+                <v-timeline-item
+                  :dot-color="getPipelineStageColor('extract')"
+                  size="small"
+                >
+                  <template v-slot:icon>
+                    <v-icon size="16" color="white">
+                      {{ getPipelineStageIcon('extract') }}
+                    </v-icon>
+                  </template>
+                  <div class="d-flex align-center justify-space-between">
+                    <div>
+                      <div class="text-body-1 font-weight-medium">Extract</div>
+                      <div class="text-caption text-grey">Data extraction and parsing</div>
+                    </div>
+                    <v-chip
+                      :color="getPipelineStageColor('extract')"
+                      size="small"
+                      variant="tonal"
+                    >
+                      {{ getPipelineStageStatus('extract') }}
+                    </v-chip>
+                  </div>
+                </v-timeline-item>
+
+                <v-timeline-item
+                  :dot-color="getPipelineStageColor('process')"
+                  size="small"
+                >
+                  <template v-slot:icon>
+                    <v-icon size="16" color="white">
+                      {{ getPipelineStageIcon('process') }}
+                    </v-icon>
+                  </template>
+                  <div class="d-flex align-center justify-space-between">
+                    <div>
+                      <div class="text-body-1 font-weight-medium">Process</div>
+                      <div class="text-caption text-grey">Data ready for analysis</div>
+                    </div>
+                    <v-chip
+                      :color="getPipelineStageColor('process')"
+                      size="small"
+                      variant="tonal"
+                    >
+                      {{ getPipelineStageStatus('process') }}
+                    </v-chip>
+                  </div>
+                </v-timeline-item>
+              </v-timeline>
+            </v-card-text>
+          </v-card>
+
           <v-card v-if="processingFiles.length === 0" class="empty-state pa-10 text-center" rounded="lg" elevation="0">
             <v-icon size="80" color="grey-lighten-1">mdi-information-outline</v-icon>
             <div class="text-h6 font-weight-medium mt-4">No active processing jobs</div>
@@ -343,6 +427,55 @@ function getJobFiles(jobId: string | undefined) {
   if (!jobId) return [];
   return filesStore.getAllFiles().filter(f => f.jobId === jobId);
 }
+
+function getPipelineStageStatus(stage: 'upload' | 'extract' | 'process'): string {
+  if (!selectedJobId.value) return 'PENDING';
+  const job = getJob(selectedJobId.value);
+  if (!job) return 'PENDING';
+
+  if (job.stages && job.stages[stage]) {
+    return job.stages[stage].status.toUpperCase();
+  }
+
+  if (job.status === 'completed') return 'COMPLETED';
+  if (job.status === 'failed') return 'FAILED';
+
+  const stageOrder = ['upload', 'extract', 'process'];
+  const currentStageIndex = stageOrder.indexOf(stage);
+  const jobProgress = job.progress || 0;
+
+  if (jobProgress === 100) return 'COMPLETED';
+  if (jobProgress > currentStageIndex * 33) {
+    if (jobProgress < (currentStageIndex + 1) * 33) return 'ACTIVE';
+    return 'COMPLETED';
+  }
+  return 'PENDING';
+}
+
+function getPipelineStageColor(stage: 'upload' | 'extract' | 'process'): string {
+  const status = getPipelineStageStatus(stage);
+  const colors: Record<string, string> = {
+    'PENDING': 'grey',
+    'ACTIVE': 'orange',
+    'COMPLETED': 'success',
+    'FAILED': 'error',
+  };
+  return colors[status] || 'grey';
+}
+
+function getPipelineStageIcon(stage: 'upload' | 'extract' | 'process'): string {
+  const status = getPipelineStageStatus(stage);
+  if (status === 'COMPLETED') return 'mdi-check';
+  if (status === 'ACTIVE') return 'mdi-loading';
+  if (status === 'FAILED') return 'mdi-close';
+
+  const icons: Record<string, string> = {
+    'upload': 'mdi-cloud-upload',
+    'extract': 'mdi-file-search',
+    'process': 'mdi-cog',
+  };
+  return icons[stage] || 'mdi-circle-small';
+}
 </script>
 
 <style scoped>
@@ -441,6 +574,18 @@ function getJobFiles(jobId: string | undefined) {
 .status-content {
   max-width: 1000px;
   width: 100%;
+}
+
+.pipeline-card {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.03) 0%, rgba(118, 75, 162, 0.03) 100%);
+}
+
+.v-theme--dark .pipeline-card {
+  background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
+}
+
+.pipeline-timeline {
+  padding: 0 !important;
 }
 
 .empty-state {
