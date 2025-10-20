@@ -50,7 +50,7 @@
     </v-card>
 
     <v-card class="status-container" rounded="xl" elevation="0">
-      <v-card-title class="d-flex align-center ga-4 pa-6">
+      <v-card-title class="d-flex flex-column align-center ga-3 pa-6 text-center">
         <v-card
           class="header-icon-wrapper"
           color="primary"
@@ -93,17 +93,17 @@
             <v-col cols="12" md="4">
               <v-card rounded="lg" elevation="0" border>
                 <v-card-text class="d-flex align-center ga-4">
-                  <v-icon size="28" color="info">mdi-chart-line</v-icon>
+                  <v-icon size="28" color="info">mdi-file-multiple</v-icon>
                   <div>
-                    <div class="text-h5 font-weight-bold">{{ overallProgress }}%</div>
-                    <div class="text-caption text-grey">Overall Progress</div>
+                    <div class="text-h5 font-weight-bold">{{ totalFiles }}</div>
+                    <div class="text-caption text-grey">Total Files</div>
                   </div>
                 </v-card-text>
               </v-card>
             </v-col>
           </v-row>
 
-          <v-card v-if="selectedJobId && getJob(selectedJobId)" class="pipeline-card mb-6" rounded="xl" elevation="0" border>
+          <v-card v-if="displayJobId && getJob(displayJobId)" class="pipeline-card mb-6" rounded="xl" elevation="0" border>
             <v-card-text class="pa-6">
               <div class="text-overline text-grey mb-6 text-center">Processing Pipeline</div>
               <v-timeline
@@ -324,6 +324,19 @@ const allJobs = computed(() => {
   );
 });
 
+const displayJobId = computed(() => {
+  if (selectedJobId.value) return selectedJobId.value;
+
+  const activeJob = processingFiles.value.find(f => f.jobId);
+  if (activeJob?.jobId) return activeJob.jobId;
+
+  const allFiles = filesStore.getAllFiles();
+  const lastFile = allFiles[allFiles.length - 1];
+  return lastFile?.jobId || null;
+});
+
+const totalFiles = computed(() => filesStore.getAllFiles().length);
+
 function selectJob(jobId: string) {
   selectedJobId.value = jobId;
   const file = filesStore.getAllFiles().find(f => f.jobId === jobId);
@@ -355,13 +368,6 @@ const completedJobs = computed(() =>
   filesStore.getAllFiles().filter((f) => f.status === 'completed').length
 );
 
-const overallProgress = computed(() => {
-  if (processingFiles.value.length === 0) return 100;
-  const total = processingFiles.value.reduce((sum, file) => {
-    return sum + (file.jobId ? getJobProgress(file.jobId) : 0);
-  }, 0);
-  return Math.round(total / processingFiles.value.length);
-});
 
 function getJob(jobId: string) {
   return jobsStore.getJob(jobId);
@@ -425,8 +431,8 @@ function getJobFiles(jobId: string | undefined) {
 }
 
 function getPipelineStageStatus(stage: 'upload' | 'extract' | 'process'): string {
-  if (!selectedJobId.value) return 'PENDING';
-  const job = getJob(selectedJobId.value);
+  if (!displayJobId.value) return 'PENDING';
+  const job = getJob(displayJobId.value);
   if (!job) return 'PENDING';
 
   if (job.stages && job.stages[stage]) {
