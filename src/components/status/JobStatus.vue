@@ -66,7 +66,7 @@
       </v-card-title>
 
       <v-card-text class="pa-6">
-        <div class="status-content">
+        <div class="status-content mx-auto">
           <v-row class="mb-6">
             <v-col cols="12" md="4">
               <v-card rounded="lg" elevation="0" border>
@@ -105,27 +105,25 @@
 
           <v-card v-if="selectedJobId && getJob(selectedJobId)" class="pipeline-card mb-6" rounded="xl" elevation="0" border>
             <v-card-text class="pa-6">
-              <div class="text-overline text-grey mb-4">Processing Pipeline</div>
+              <div class="text-overline text-grey mb-6 text-center">Processing Pipeline</div>
               <v-timeline
-                align="start"
-                side="end"
-                density="compact"
-                class="pipeline-timeline"
+                direction="horizontal"
+                align="center"
+                class="pipeline-timeline-horizontal"
               >
                 <v-timeline-item
                   :dot-color="getPipelineStageColor('upload')"
-                  size="small"
+                  size="large"
+                  width="300"
                 >
                   <template v-slot:icon>
-                    <v-icon size="16" color="white">
+                    <v-icon size="20" color="white">
                       {{ getPipelineStageIcon('upload') }}
                     </v-icon>
                   </template>
-                  <div class="d-flex align-center justify-space-between">
-                    <div>
-                      <div class="text-body-1 font-weight-medium">Upload</div>
-                      <div class="text-caption text-grey">File uploaded to cloud storage</div>
-                    </div>
+                  <div class="text-center px-2">
+                    <div class="text-body-1 font-weight-bold mb-1">Upload</div>
+                    <div class="text-caption text-grey mb-2">File uploaded to cloud storage</div>
                     <v-chip
                       :color="getPipelineStageColor('upload')"
                       size="small"
@@ -138,18 +136,17 @@
 
                 <v-timeline-item
                   :dot-color="getPipelineStageColor('extract')"
-                  size="small"
+                  size="large"
+                  width="300"
                 >
                   <template v-slot:icon>
-                    <v-icon size="16" color="white">
+                    <v-icon size="20" color="white">
                       {{ getPipelineStageIcon('extract') }}
                     </v-icon>
                   </template>
-                  <div class="d-flex align-center justify-space-between">
-                    <div>
-                      <div class="text-body-1 font-weight-medium">Extract</div>
-                      <div class="text-caption text-grey">Data extraction and parsing</div>
-                    </div>
+                  <div class="text-center px-2">
+                    <div class="text-body-1 font-weight-bold mb-1">Extract</div>
+                    <div class="text-caption text-grey mb-2">Data extraction and parsing</div>
                     <v-chip
                       :color="getPipelineStageColor('extract')"
                       size="small"
@@ -162,18 +159,17 @@
 
                 <v-timeline-item
                   :dot-color="getPipelineStageColor('process')"
-                  size="small"
+                  size="large"
+                  width="300"
                 >
                   <template v-slot:icon>
-                    <v-icon size="16" color="white">
+                    <v-icon size="20" color="white">
                       {{ getPipelineStageIcon('process') }}
                     </v-icon>
                   </template>
-                  <div class="d-flex align-center justify-space-between">
-                    <div>
-                      <div class="text-body-1 font-weight-medium">Process</div>
-                      <div class="text-caption text-grey">Data ready for analysis</div>
-                    </div>
+                  <div class="text-center px-2">
+                    <div class="text-body-1 font-weight-bold mb-1">Process</div>
+                    <div class="text-caption text-grey mb-2">Data ready for analysis</div>
                     <v-chip
                       :color="getPipelineStageColor('process')"
                       size="small"
@@ -584,8 +580,17 @@ function getPipelineStageIcon(stage: 'upload' | 'extract' | 'process'): string {
   background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
 }
 
-.pipeline-timeline {
-  padding: 0 !important;
+.pipeline-timeline-horizontal {
+  padding: 20px 0 !important;
+  justify-content: center;
+}
+
+.pipeline-timeline-horizontal :deep(.v-timeline-item) {
+  padding-top: 0 !important;
+}
+
+.pipeline-timeline-horizontal :deep(.v-timeline-divider__dot) {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 .empty-state {
