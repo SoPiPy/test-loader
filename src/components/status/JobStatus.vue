@@ -50,24 +50,22 @@
     </v-card>
 
     <v-card class="status-container" rounded="xl" elevation="0">
-      <v-card-text class="pa-6">
-        <div class="text-center mb-6">
-          <div class="d-flex align-center justify-center ga-4">
-            <v-card
-              class="header-icon-wrapper"
-              color="primary"
-              rounded="lg"
-              elevation="0"
-            >
-              <v-icon size="32" color="white">mdi-progress-check</v-icon>
-            </v-card>
-            <div class="text-start">
-              <h2 class="text-h4 font-weight-bold gradient-text">Processing Status</h2>
-              <p class="text-body-2 text-grey">Monitor your file processing jobs in real-time</p>
-            </div>
-          </div>
+      <v-card-title class="d-flex align-center ga-4 pa-6">
+        <v-card
+          class="header-icon-wrapper"
+          color="primary"
+          rounded="lg"
+          elevation="0"
+        >
+          <v-icon size="32" color="white">mdi-progress-check</v-icon>
+        </v-card>
+        <div>
+          <div class="text-h4 font-weight-bold gradient-text">Processing Status</div>
+          <div class="text-body-2 text-grey mt-1">Monitor your file processing jobs in real-time</div>
         </div>
+      </v-card-title>
 
+      <v-card-text class="pa-6">
         <div class="status-content">
           <v-row class="mb-6">
             <v-col cols="12" md="4">
