@@ -24,48 +24,46 @@
             </v-col>
 
             <v-col cols="auto">
-              <v-btn
-                icon
-                variant="text"
-                class="theme-btn"
-                @click="toggleTheme"
-              >
-                <v-icon color="white">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
-              </v-btn>
-            </v-col>
-          </v-row>
-
-          <v-row justify="center" class="tabs-row">
-            <v-col cols="auto">
-              <v-card class="floating-tabs" rounded="lg" elevation="0">
-                <v-tabs
-                  v-model="tab"
-                  color="primary"
-                  bg-color="transparent"
-                  slider-color="transparent"
-                  height="56"
-                  show-arrows
-                  density="comfortable"
-                >
-                  <v-tab
-                    v-for="tabItem in tabs"
-                    :key="tabItem.value"
-                    :value="tabItem.value"
-                    class="tab-item"
-                    rounded="lg"
+              <div class="header-right">
+                <v-card class="floating-tabs" rounded="lg" elevation="0">
+                  <v-tabs
+                    v-model="tab"
+                    color="primary"
+                    bg-color="transparent"
+                    slider-color="transparent"
+                    height="56"
+                    show-arrows
+                    density="comfortable"
                   >
-                    <v-icon :size="20" class="tab-icon">{{ tabItem.icon }}</v-icon>
-                    <span class="tab-label">{{ tabItem.label }}</span>
-                    <v-badge
-                      v-if="tabItem.value === 'status' && activeJobsCount > 0"
-                      :content="activeJobsCount"
-                      color="error"
-                      inline
-                      class="tab-badge"
-                    ></v-badge>
-                  </v-tab>
-                </v-tabs>
-              </v-card>
+                    <v-tab
+                      v-for="tabItem in tabs"
+                      :key="tabItem.value"
+                      :value="tabItem.value"
+                      class="tab-item"
+                      rounded="lg"
+                    >
+                      <v-icon :size="20" class="tab-icon">{{ tabItem.icon }}</v-icon>
+                      <span class="tab-label">{{ tabItem.label }}</span>
+                      <v-badge
+                        v-if="tabItem.value === 'status' && activeJobsCount > 0"
+                        :content="activeJobsCount"
+                        color="error"
+                        inline
+                        class="tab-badge"
+                      ></v-badge>
+                    </v-tab>
+                  </v-tabs>
+                </v-card>
+
+                <v-btn
+                  icon
+                  variant="text"
+                  class="theme-btn"
+                  @click="toggleTheme"
+                >
+                  <v-icon color="white">{{ isDark ? 'mdi-white-balance-sunny' : 'mdi-weather-night' }}</v-icon>
+                </v-btn>
+              </div>
             </v-col>
           </v-row>
         </v-container>
@@ -148,7 +146,7 @@ onUnmounted(() => {
 .modern-header {
   position: relative;
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
-  padding: 1.25rem 0 !important;
+  padding: 1rem 0 !important;
   flex-shrink: 0;
 }
 
@@ -215,8 +213,10 @@ onUnmounted(() => {
   transform: scale(1.05);
 }
 
-.tabs-row {
-  margin-top: 1rem;
+.header-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .floating-tabs {
